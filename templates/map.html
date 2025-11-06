@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOOM Raycaster</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+        #container {
+            position: relative;
+        }
+        canvas {
+            border: 2px solid #333;
+            image-rendering: pixelated;
+        }
+        #minimap {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: 2px solid #0f0;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        #hud {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #0f0;
+            font-size: 14px;
+            text-shadow: 2px 2px 4px #000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border: 2px solid #0f0;
+        }
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border: 2px solid #666;
+        }
+        .key {
+            color: #ff0;
+        }
+        #iframe-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        #iframe-overlay.active {
+            display: flex;
+        }
+        #iframe-container {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            background: #000;
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 20px #FFD700;
+        }
+        #iframe-container iframe {
+            width: 100%;
+            height: calc(100% - 40px);
+            border: none;
+        }
+        #iframe-header {
+            background: #FFD700;
+            color: #000;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+        #close-iframe {
+            background: #f00;
+            color: #fff;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        #close-iframe:hover {
+            background: #ff4444;
+        }
+        #door-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FFD700;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 3px solid #FFD700;
+            display: none;
+            z-index: 100;
+            text-align: center;
+        }
+        #door-text.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas" width="800" height="600"></canvas>
+        <canvas id="minimap" width="200" height="200"></canvas>
+        <div id="controls">
+            <div><span class="key">W/↑</span> Move Forward</div>
+            <div><span class="key">S/↓</span> Move Backward</div>
+            <div><span class="key">A/←</span> Turn Left</div>
+            <div><span class="key">D/→</span> Turn Right</div>
+            <div><span class="key">E</span> Interact with Special Walls/Doors</div>
+            <div><span class="key">Space</span> Shoot</div>
+        </div>
+        <div id="hud">
+            <div>FPS: <span id="fps">0</span></div>
+            <div>POS: <span id="pos">0, 0</span></div>
+            <div>KEYS: <span id="keys">0</span></div>
+            <div>AMMO: <span id="ammo">50</span></div>
+        </div>
+        <div id="door-text">
+            <div>🚪 PORTAL DOOR</div>
+            <div style="font-size: 16px; margin-top: 10px;">Press E to open portal</div>
+        </div>
+    </div>
+
+    <div id="iframe-overlay">
+        <div id="iframe-container">
+            <div id="iframe-header">
+                <span>🌐 PORTAL: https://main.jero98772.page/</span>
+                <button id="close-iframe">CLOSE [ESC]</button>
+            </div>
+            <iframe id="portal-iframe" src=""></iframe>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const minimap = document.getElementById('minimap');
+        const mmCtx = minimap.getContext('2d');
+        
+        const WIDTH = canvas.width;
+        const HEIGHT = canvas.height;
+        const MAP_SIZE = 16;
+        const TILE_SIZE = 64;
+        
+        // Map: 0=empty, 1=wall, 2=door(portal), 3=key, 4=secret wall, 5=exit
+        const map = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+            [1,0,3,0,0,0,1,0,0,0,0,0,0,0,0,1],
+            [1,0,0,0,0,0,2,0,0,1,1,1,1,0,0,1],
+            [1,0,0,0,0,0,1,0,0,1,0,0,1,0,0,1],
+            [1,1,1,2,1,1,1,0,0,4,0,0,1,0,0,1],
+            [1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1],
+            [1,0,0,0,0,0,0,0,0,1,0,0,2,0,0,1],
+            [1,0,0,1,1,1,1,1,1,1,0,0,1,0,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,1,0,3,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1],
+            [1,0,0,1,1,1,4,1,1,1,1,1,1,0,0,1],
+            [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,0,0,1,0,0,0,0,0,0,0,0,0,0,5,1],
+            [1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+        
+        const player = {
+            x: 1.5 * TILE_SIZE,
+            y: 1.5 * TILE_SIZE,
+            angle: 0,
+            speed: 3,
+            rotSpeed: 0.05,
+            keys: 0,
+            ammo: 50
+        };
+        
+        const keys = {};
+        const FOV = Math.PI / 3;
+        const HALF_FOV = FOV / 2;
+        const NUM_RAYS = 120;
+        const MAX_DEPTH = 800;
+        const DELTA_ANGLE = FOV / NUM_RAYS;
+        
+        let fps = 0;
+        let lastTime = 0;
+        let frameCount = 0;
+        let fpsTime = 0;
+        
+        let shooting = false;
+        let shootTime = 0;
+        
+        let lookingAtDoor = false;
+        let lastDoorCheck = 0;
+        
+        // Track opened doors and secret walls
+        const openedDoors = new Set();
+        const discoveredSecrets = new Set();
+        
+        // Portal state
+        let portalOpen = false;
+        const iframeOverlay = document.getElementById('iframe-overlay');
+        const portalIframe = document.getElementById('portal-iframe');
+        const closeBtn = document.getElementById('close-iframe');
+        const doorText = document.getElementById('door-text');
+        
+        closeBtn.addEventListener('click', closePortal);
+        
+        function closePortal() {
+            portalOpen = false;
+            iframeOverlay.classList.remove('active');
+            portalIframe.src = '';
+        }
+        
+        function openPortal() {
+            portalOpen = true;
+            iframeOverlay.classList.add('active');
+            portalIframe.src = 'https://main.jero98772.page/';
+        }
+        
+        function getMapValue(x, y) {
+            const mx = Math.floor(x / TILE_SIZE);
+            const my = Math.floor(y / TILE_SIZE);
+            if (mx < 0 || mx >= MAP_SIZE || my < 0 || my >= MAP_SIZE) return 1;
+            return map[my][mx];
+        }
+        
+        function setMapValue(x, y, val) {
+            const mx = Math.floor(x / TILE_SIZE);
+            const my = Math.floor(y / TILE_SIZE);
+            if (mx >= 0 && mx < MAP_SIZE && my >= 0 && my < MAP_SIZE) {
+                map[my][mx] = val;
+            }
+        }
+        
+        function checkCollision(x, y) {
+            const val = getMapValue(x, y);
+            return val === 1 || val === 2;
+        }
+        
+        function checkLookingAtDoor() {
+            const dirX = Math.cos(player.angle);
+            const dirY = Math.sin(player.angle);
+            const checkDist = 80;
+            
+            const checkX = player.x + dirX * checkDist;
+            const checkY = player.y + dirY * checkDist;
+            
+            const mx = Math.floor(checkX / TILE_SIZE);
+            const my = Math.floor(checkY / TILE_SIZE);
+            
+            if (mx >= 0 && mx < MAP_SIZE && my >= 0 && my < MAP_SIZE) {
+                const val = map[my][mx];
+                return val === 2;
+            }
+            return false;
+        }
+        
+        function interact() {
+            const dirX = Math.cos(player.angle);
+            const dirY = Math.sin(player.angle);
+            const checkDist = 80;
+            
+            const checkX = player.x + dirX * checkDist;
+            const checkY = player.y + dirY * checkDist;
+            
+            const mx = Math.floor(checkX / TILE_SIZE);
+            const my = Math.floor(checkY / TILE_SIZE);
+            const val = map[my][mx];
+            
+            if (val === 2) {
+                // Open portal door
+                openPortal();
+            } else if (val === 3) {
+                // Collect key
+                map[my][mx] = 0;
+                player.keys++;
+            } else if (val === 4) {
+                // Discover secret wall
+                map[my][mx] = 0;
+                discoveredSecrets.add(`${mx},${my}`);
+            } else if (val === 5) {
+                // Exit
+                alert('Level Complete! You found ' + discoveredSecrets.size + ' secret walls!');
+            }
+        }
+        
+        function castRay(angle) {
+            const rayX = Math.cos(angle);
+            const rayY = Math.sin(angle);
+            
+            let depth = 0;
+            let hit = false;
+            let hitValue = 0;
+            
+            while (!hit && depth < MAX_DEPTH) {
+                depth += 1;
+                const targetX = player.x + rayX * depth;
+                const targetY = player.y + rayY * depth;
+                
+                hitValue = getMapValue(targetX, targetY);
+                if (hitValue > 0) {
+                    hit = true;
+                }
+            }
+            
+            return { depth, hitValue };
+        }
+        
+        function drawWall(x, wallHeight, color, shade, hitValue) {
+            const shadedColor = shadeColor(color, shade);
+            ctx.fillStyle = shadedColor;
+            ctx.fillRect(x, (HEIGHT - wallHeight) / 2, WIDTH / NUM_RAYS + 1, wallHeight);
+            
+            // Draw text on portal doors
+            if (hitValue === 2 && wallHeight > 100) {
+                ctx.fillStyle = '#000';
+                ctx.font = 'bold 12px Courier New';
+                ctx.textAlign = 'center';
+                const textY = (HEIGHT - wallHeight) / 2 + wallHeight / 2;
+                ctx.fillText('PORTAL', x + (WIDTH / NUM_RAYS) / 2, textY);
+            }
+        }
+        
+        function shadeColor(color, amount) {
+            const num = parseInt(color.slice(1), 16);
+            const r = Math.max(0, Math.min(255, (num >> 16) * amount));
+            const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) * amount));
+            const b = Math.max(0, Math.min(255, (num & 0x0000FF) * amount));
+            return `rgb(${r},${g},${b})`;
+        }
+        
+        function getWallColor(value) {
+            switch(value) {
+                case 1: return '#808080'; // Normal wall
+                case 2: return '#FFD700'; // Portal door
+                case 4: return '#8B4513'; // Secret wall
+                case 5: return '#00FF00'; // Exit
+                default: return '#808080';
+            }
+        }
+        
+        function render() {
+            // Clear and draw ceiling/floor
+            ctx.fillStyle = '#2C3E50';
+            ctx.fillRect(0, 0, WIDTH, HEIGHT / 2);
+            ctx.fillStyle = '#34495E';
+            ctx.fillRect(0, HEIGHT / 2, WIDTH, HEIGHT / 2);
+            
+            // Cast rays
+            for (let i = 0; i < NUM_RAYS; i++) {
+                const rayAngle = player.angle - HALF_FOV + (i * DELTA_ANGLE);
+                const { depth, hitValue } = castRay(rayAngle);
+                
+                // Fix fish-eye effect
+                const distance = depth * Math.cos(rayAngle - player.angle);
+                const wallHeight = (TILE_SIZE * HEIGHT) / (distance + 0.0001);
+                
+                // Calculate shading based on distance
+                const shade = Math.max(0.3, 1 - distance / MAX_DEPTH);
+                
+                const color = getWallColor(hitValue);
+                drawWall(i * (WIDTH / NUM_RAYS), wallHeight, color, shade, hitValue);
+            }
+            
+            // Draw shooting flash
+            if (shooting && Date.now() - shootTime < 100) {
+                ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+                ctx.fillRect(WIDTH/2 - 20, HEIGHT/2 - 20, 40, 40);
+            }
+            
+            // Draw weapon
+            ctx.fillStyle = '#555';
+            ctx.fillRect(WIDTH/2 - 30, HEIGHT - 100, 60, 80);
+            ctx.fillStyle = '#333';
+            ctx.fillRect(WIDTH/2 - 15, HEIGHT - 120, 30, 40);
+            
+            // Show door text if looking at portal door
+            if (lookingAtDoor) {
+                doorText.classList.add('show');
+            } else {
+                doorText.classList.remove('show');
+            }
+        }
+        
+        function drawMinimap() {
+            const scale = minimap.width / (MAP_SIZE * TILE_SIZE);
+            mmCtx.fillStyle = '#000';
+            mmCtx.fillRect(0, 0, minimap.width, minimap.height);
+            
+            // Draw map
+            for (let y = 0; y < MAP_SIZE; y++) {
+                for (let x = 0; x < MAP_SIZE; x++) {
+                    const val = map[y][x];
+                    if (val === 1) mmCtx.fillStyle = '#fff';
+                    else if (val === 2) mmCtx.fillStyle = '#ff0';
+                    else if (val === 3) mmCtx.fillStyle = '#0ff';
+                    else if (val === 4) mmCtx.fillStyle = '#a52a2a';
+                    else if (val === 5) mmCtx.fillStyle = '#0f0';
+                    else mmCtx.fillStyle = '#222';
+                    
+                    mmCtx.fillRect(x * TILE_SIZE * scale, y * TILE_SIZE * scale, 
+                                   TILE_SIZE * scale, TILE_SIZE * scale);
+                }
+            }
+            
+            // Draw player
+            mmCtx.fillStyle = '#f00';
+            mmCtx.beginPath();
+            mmCtx.arc(player.x * scale, player.y * scale, 3, 0, Math.PI * 2);
+            mmCtx.fill();
+            
+            // Draw direction
+            mmCtx.strokeStyle = '#f00';
+            mmCtx.beginPath();
+            mmCtx.moveTo(player.x * scale, player.y * scale);
+            mmCtx.lineTo(
+                player.x * scale + Math.cos(player.angle) * 15,
+                player.y * scale + Math.sin(player.angle) * 15
+            );
+            mmCtx.stroke();
+        }
+        
+        function update(deltaTime) {
+            const moveSpeed = player.speed;
+            
+            // Movement
+            if (keys['w'] || keys['ArrowUp']) {
+                const newX = player.x + Math.cos(player.angle) * moveSpeed;
+                const newY = player.y + Math.sin(player.angle) * moveSpeed;
+                if (!checkCollision(newX, newY)) {
+                    player.x = newX;
+                    player.y = newY;
+                }
+            }
+            if (keys['s'] || keys['ArrowDown']) {
+                const newX = player.x - Math.cos(player.angle) * moveSpeed;
+                const newY = player.y - Math.sin(player.angle) * moveSpeed;
+                if (!checkCollision(newX, newY)) {
+                    player.x = newX;
+                    player.y = newY;
+                }
+            }
+            
+            // Rotation
+            if (keys['a'] || keys['ArrowLeft']) {
+                player.angle -= player.rotSpeed;
+            }
+            if (keys['d'] || keys['ArrowRight']) {
+                player.angle += player.rotSpeed;
+            }
+            
+            // Check if looking at door
+            const now = Date.now();
+            if (now - lastDoorCheck > 100) {
+                lookingAtDoor = checkLookingAtDoor();
+                lastDoorCheck = now;
+            }
+            
+            // Interaction
+            if (keys['e']) {
+                interact();
+                keys['e'] = false; // Prevent repeated triggers
+            }
+            
+            // Shooting
+            if (keys[' '] && player.ammo > 0 && !shooting) {
+                shooting = true;
+                shootTime = Date.now();
+                player.ammo--;
+                setTimeout(() => shooting = false, 100);
+            }
+            
+            // Update HUD
+            document.getElementById('pos').textContent = 
+                `${Math.floor(player.x / TILE_SIZE)}, ${Math.floor(player.y / TILE_SIZE)}`;
+            document.getElementById('keys').textContent = player.keys;
+            document.getElementById('ammo').textContent = player.ammo;
+        }
+        
+        function gameLoop(timestamp) {
+            if (portalOpen) {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+            
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+            
+            // Calculate FPS
+            frameCount++;
+            fpsTime += deltaTime;
+            if (fpsTime >= 1000) {
+                fps = Math.round(frameCount * 1000 / fpsTime);
+                document.getElementById('fps').textContent = fps;
+                frameCount = 0;
+                fpsTime = 0;
+            }
+            
+            update(deltaTime);
+            render();
+            drawMinimap();
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Event listeners
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && portalOpen) {
+                closePortal();
+            }
+            keys[e.key.toLowerCase()] = true;
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+        
+        // Start game
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>
