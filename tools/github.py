@@ -122,16 +122,3 @@ class GitHubRepoFetcher:
             print(f"   Description: {repo.description or 'No description'}")
             print()
 
-
-# Example usage
-if __name__ == "__main__":
-    # Replace with any GitHub username
-    username = "torvalds"
-    
-    fetcher = GitHubRepoFetcher(username)
-    fetcher.print_repos()
-    
-    # Or get the repos as a list
-    # repos = fetcher.fetch_repos()
-    # for repo in repos:
-    #     print(repo)
