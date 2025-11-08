@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOOM Raycaster</title>
+    <title>DOOM Raycaster - {{ username }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -57,60 +58,89 @@
         .key {
             color: #ff0;
         }
-        #iframe-overlay {
+        #readme-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             display: none;
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            overflow: auto;
         }
-        #iframe-overlay.active {
+        #readme-overlay.active {
             display: flex;
         }
-        #iframe-container {
+        #readme-container {
             position: relative;
             width: 90%;
+            max-width: 1200px;
             height: 90%;
-            background: #000;
+            background: #1e1e1e;
             border: 3px solid #FFD700;
             box-shadow: 0 0 20px #FFD700;
+            display: flex;
+            flex-direction: column;
         }
-        #iframe-container iframe {
-            width: 100%;
-            height: calc(100% - 80px);
-            border: none;
-        }
-        #iframe-header {
+        #readme-header {
             background: #FFD700;
             color: #000;
-            padding: 10px;
+            padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: bold;
+            flex-shrink: 0;
         }
-        #iframe-description {
+        #readme-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #e0e0e0;
+        }
+        #readme-content a {
+            color: #58a6ff;
+        }
+        #readme-content code {
+            background: #2d2d2d;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        #readme-content pre {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        #readme-content h1, #readme-content h2, #readme-content h3 {
+            color: #FFD700;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        #readme-description {
             background: #333;
             color: #FFD700;
-            padding: 10px;
+            padding: 15px;
             font-size: 14px;
             border-top: 2px solid #FFD700;
+            flex-shrink: 0;
         }
-        #close-iframe {
+        #close-readme {
             background: #f00;
             color: #fff;
             border: none;
-            padding: 5px 15px;
+            padding: 8px 20px;
             cursor: pointer;
             font-family: 'Courier New', monospace;
             font-weight: bold;
+            font-size: 14px;
         }
-        #close-iframe:hover {
+        #close-readme:hover {
             background: #ff4444;
         }
         #door-text {
@@ -128,7 +158,7 @@
             display: none;
             z-index: 100;
             text-align: center;
-            max-width: 400px;
+            max-width: 500px;
         }
         #door-text.show {
             display: block;
@@ -149,29 +179,28 @@
             <div><span class="key">S/↓</span> Move Backward</div>
             <div><span class="key">A/←</span> Turn Left</div>
             <div><span class="key">D/→</span> Turn Right</div>
-            <div><span class="key">E</span> Interact with Special Walls/Doors</div>
-            <div><span class="key">Space</span> Shoot</div>
+            <div><span class="key">E</span> Open Repository README</div>
         </div>
         <div id="hud">
             <div>FPS: <span id="fps">0</span></div>
+            <div>USER: <span id="username">{{ username }}</span></div>
             <div>POS: <span id="pos">0, 0</span></div>
-            <div>KEYS: <span id="keys">0</span></div>
-            <div>AMMO: <span id="ammo">50</span></div>
+            <div>REPOS: <span id="repo-count">0</span></div>
         </div>
         <div id="door-text">
-            <div>🚪 PORTAL DOOR</div>
-            <div id="door-description">Press E to open portal</div>
+            <div>📦 REPOSITORY</div>
+            <div id="door-description">Press E to view README</div>
         </div>
     </div>
 
-    <div id="iframe-overlay">
-        <div id="iframe-container">
-            <div id="iframe-header">
-                <span id="portal-url">🌐 PORTAL</span>
-                <button id="close-iframe">CLOSE [ESC]</button>
+    <div id="readme-overlay">
+        <div id="readme-container">
+            <div id="readme-header">
+                <span id="repo-title">🔗 Repository</span>
+                <button id="close-readme">CLOSE [ESC]</button>
             </div>
-            <iframe id="portal-iframe" src=""></iframe>
-            <div id="iframe-description"></div>
+            <div id="readme-content"></div>
+            <div id="readme-description"></div>
         </div>
     </div>
 
@@ -183,55 +212,61 @@
         
         const WIDTH = canvas.width;
         const HEIGHT = canvas.height;
-        const MAP_SIZE = 16;
+        const MAP_SIZE = {{ map_size }};
         const TILE_SIZE = 64;
      
         const backendRepos = {{ repos_data | tojson | safe }};
         
         // Portal sites array with descriptions - now from backend
         const portalSites = backendRepos.map(repo => ({
+            title: repo.title,
             url: repo.url,
-            description: `${repo.title} - ${repo.description}`
+            description: repo.description || 'No description available',
+            readme: repo.readme || '# No README available\n\nThis repository does not have a README file.'
         }));
         
-        console.log('Loaded portals:', portalSites);
+        console.log('Loaded repositories:', portalSites.length);
+        document.getElementById('repo-count').textContent = portalSites.length;
 
-        
         // Map: 0=empty, 1=wall, 2=door(portal), 3=key, 4=secret wall, 5=exit
-        const map = [
-            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-            [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
-            [1,0,3,0,0,0,1,0,0,0,0,0,0,0,0,1],
-            [1,0,0,0,0,0,2,0,0,1,1,1,1,0,0,1],
-            [1,0,0,0,0,0,1,0,0,1,0,0,1,0,0,1],
-            [1,1,1,2,1,1,1,0,0,4,0,0,1,0,0,1],
-            [1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1],
-            [1,0,0,0,0,0,0,0,0,1,0,0,2,0,0,1],
-            [1,0,0,1,1,1,1,1,1,1,0,0,1,0,0,1],
-            [1,0,0,0,0,0,0,0,0,0,0,0,1,0,3,1],
-            [1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1],
-            [1,0,0,1,1,1,4,1,1,1,1,1,1,0,0,1],
-            [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
-            [1,0,0,1,0,0,0,0,0,0,0,0,0,0,5,1],
-            [1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1],
-            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-        ];
+        const map = {{ map | tojson | safe }};
         
-        // Map each portal door to a site (by coordinates)
-        const doorPortalMap = {
-            '6,3': 0,  // First door -> AlOtroLado
-            '3,5': 1,  // Second door -> arreBatEro
-            '12,7': 2  // Third door -> Index
-        };
+        // Dynamically generate door portal mapping
+        const doorPortalMap = {};
+        let portalIndex = 0;
+        
+        // Find all doors (value 2) in the map and assign them to repositories randomly
+        const doorPositions = [];
+        for (let y = 0; y < MAP_SIZE; y++) {
+            for (let x = 0; x < MAP_SIZE; x++) {
+                if (map[y][x] === 2) {
+                    doorPositions.push([x, y]);
+                }
+            }
+        }
+        
+        // Shuffle door positions for randomness
+        for (let i = doorPositions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [doorPositions[i], doorPositions[j]] = [doorPositions[j], doorPositions[i]];
+        }
+        
+        // Assign repositories to doors
+        doorPositions.forEach((pos, index) => {
+            if (index < portalSites.length) {
+                const [x, y] = pos;
+                doorPortalMap[`${x},${y}`] = index;
+            }
+        });
+        
+        console.log('Door mappings:', doorPortalMap);
         
         const player = {
-            x: 1.5 * TILE_SIZE,
-            y: 1.5 * TILE_SIZE,
+            x: ({{ x }} *64 ) + 1.5 * TILE_SIZE,
+            y: ({{ y }} *64 ) + 1.5 * TILE_SIZE,
             angle: 0,
             speed: 3,
-            rotSpeed: 0.05,
-            keys: 0,
-            ammo: 50
+            rotSpeed: 0.05
         };
         
         const keys = {};
@@ -246,41 +281,45 @@
         let frameCount = 0;
         let fpsTime = 0;
         
-        let shooting = false;
-        let shootTime = 0;
-        
         let lookingAtDoor = false;
         let currentDoorInfo = null;
         let lastDoorCheck = 0;
         
-        // Track opened doors and secret walls
-        const openedDoors = new Set();
-        const discoveredSecrets = new Set();
-        
         // Portal state
-        let portalOpen = false;
-        const iframeOverlay = document.getElementById('iframe-overlay');
-        const portalIframe = document.getElementById('portal-iframe');
-        const closeBtn = document.getElementById('close-iframe');
+        let readmeOpen = false;
+        const readmeOverlay = document.getElementById('readme-overlay');
+        const readmeContent = document.getElementById('readme-content');
+        const closeBtn = document.getElementById('close-readme');
         const doorText = document.getElementById('door-text');
         const doorDescription = document.getElementById('door-description');
-        const portalUrl = document.getElementById('portal-url');
-        const iframeDescription = document.getElementById('iframe-description');
+        const repoTitle = document.getElementById('repo-title');
+        const readmeDescription = document.getElementById('readme-description');
         
-        closeBtn.addEventListener('click', closePortal);
+        closeBtn.addEventListener('click', closeReadme);
         
-        function closePortal() {
-            portalOpen = false;
-            iframeOverlay.classList.remove('active');
-            portalIframe.src = '';
+        function closeReadme() {
+            readmeOpen = false;
+            readmeOverlay.classList.remove('active');
         }
         
-        function openPortal(siteInfo) {
-            portalOpen = true;
-            iframeOverlay.classList.add('active');
-            portalIframe.src = siteInfo.url;
-            portalUrl.textContent = '🌐 ' + siteInfo.url;
-            iframeDescription.textContent = siteInfo.description;
+        function openReadme(repoInfo) {
+            readmeOpen = true;
+            readmeOverlay.classList.add('active');
+            
+            // Set title and description
+            repoTitle.textContent = `📦 ${repoInfo.title}`;
+            readmeDescription.innerHTML = `
+                <strong>${repoInfo.title}</strong><br>
+                ${repoInfo.description}<br>
+                <a href="${repoInfo.url}" target="_blank" style="color: #FFD700;">${repoInfo.url}</a>
+            `;
+            
+            // Render markdown
+            try {
+                readmeContent.innerHTML = marked.parse(repoInfo.readme);
+            } catch (e) {
+                readmeContent.innerHTML = `<pre>${repoInfo.readme}</pre>`;
+            }
         }
         
         function getMapValue(x, y) {
@@ -288,14 +327,6 @@
             const my = Math.floor(y / TILE_SIZE);
             if (mx < 0 || mx >= MAP_SIZE || my < 0 || my >= MAP_SIZE) return 1;
             return map[my][mx];
-        }
-        
-        function setMapValue(x, y, val) {
-            const mx = Math.floor(x / TILE_SIZE);
-            const my = Math.floor(y / TILE_SIZE);
-            if (mx >= 0 && mx < MAP_SIZE && my >= 0 && my < MAP_SIZE) {
-                map[my][mx] = val;
-            }
         }
         
         function checkCollision(x, y) {
@@ -322,7 +353,7 @@
                     if (portalIndex !== undefined) {
                         return {
                             isDoor: true,
-                            siteInfo: portalSites[portalIndex],
+                            repoInfo: portalSites[portalIndex],
                             coords: doorKey
                         };
                     }
@@ -344,23 +375,12 @@
             const val = map[my][mx];
             
             if (val === 2) {
-                // Open portal door
+                // Open repository README
                 const doorKey = `${mx},${my}`;
                 const portalIndex = doorPortalMap[doorKey];
                 if (portalIndex !== undefined) {
-                    openPortal(portalSites[portalIndex]);
+                    openReadme(portalSites[portalIndex]);
                 }
-            } else if (val === 3) {
-                // Collect key
-                map[my][mx] = 0;
-                player.keys++;
-            } else if (val === 4) {
-                // Discover secret wall
-                map[my][mx] = 0;
-                discoveredSecrets.add(`${mx},${my}`);
-            } else if (val === 5) {
-                // Exit
-                alert('Level Complete! You found ' + discoveredSecrets.size + ' secret walls!');
             }
         }
         
@@ -391,13 +411,13 @@
             ctx.fillStyle = shadedColor;
             ctx.fillRect(x, (HEIGHT - wallHeight) / 2, WIDTH / NUM_RAYS + 1, wallHeight);
             
-            // Draw text on portal doors
+            // Draw text on repository doors
             if (hitValue === 2 && wallHeight > 100) {
                 ctx.fillStyle = '#000';
-                ctx.font = 'bold 12px Courier New';
+                ctx.font = 'bold 10px Courier New';
                 ctx.textAlign = 'center';
                 const textY = (HEIGHT - wallHeight) / 2 + wallHeight / 2;
-                ctx.fillText('PORTAL', x + (WIDTH / NUM_RAYS) / 2, textY);
+                ctx.fillText('REPO', x + (WIDTH / NUM_RAYS) / 2, textY);
             }
         }
         
@@ -412,7 +432,7 @@
         function getWallColor(value) {
             switch(value) {
                 case 1: return '#808080'; // Normal wall
-                case 2: return '#FFD700'; // Portal door
+                case 2: return '#FFD700'; // Repository door
                 default: return '#808080';
             }
         }
@@ -440,21 +460,9 @@
                 drawWall(i * (WIDTH / NUM_RAYS), wallHeight, color, shade, hitValue);
             }
             
-            // Draw shooting flash
-            if (shooting && Date.now() - shootTime < 100) {
-                ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
-                ctx.fillRect(WIDTH/2 - 20, HEIGHT/2 - 20, 40, 40);
-            }
-            
-            // Draw weapon
-            ctx.fillStyle = '#555';
-            ctx.fillRect(WIDTH/2 - 30, HEIGHT - 100, 60, 80);
-            ctx.fillStyle = '#333';
-            ctx.fillRect(WIDTH/2 - 15, HEIGHT - 120, 30, 40);
-            
-            // Show door text if looking at portal door
+            // Show door text if looking at repository door
             if (lookingAtDoor && currentDoorInfo) {
-                doorDescription.textContent = currentDoorInfo.siteInfo.description;
+                doorDescription.innerHTML = `<strong>${currentDoorInfo.repoInfo.title}</strong><br>${currentDoorInfo.repoInfo.description}`;
                 doorText.classList.add('show');
             } else {
                 doorText.classList.remove('show');
@@ -472,9 +480,6 @@
                     const val = map[y][x];
                     if (val === 1) mmCtx.fillStyle = '#fff';
                     else if (val === 2) mmCtx.fillStyle = '#ff0';
-                    else if (val === 3) mmCtx.fillStyle = '#0ff';
-                    else if (val === 4) mmCtx.fillStyle = '#a52a2a';
-                    else if (val === 5) mmCtx.fillStyle = '#0f0';
                     else mmCtx.fillStyle = '#222';
                     
                     mmCtx.fillRect(x * TILE_SIZE * scale, y * TILE_SIZE * scale, 
@@ -543,23 +548,13 @@
                 keys['e'] = false; // Prevent repeated triggers
             }
             
-            // Shooting
-            if (keys[' '] && player.ammo > 0 && !shooting) {
-                shooting = true;
-                shootTime = Date.now();
-                player.ammo--;
-                setTimeout(() => shooting = false, 100);
-            }
-            
             // Update HUD
             document.getElementById('pos').textContent = 
                 `${Math.floor(player.x / TILE_SIZE)}, ${Math.floor(player.y / TILE_SIZE)}`;
-            document.getElementById('keys').textContent = player.keys;
-            document.getElementById('ammo').textContent = player.ammo;
         }
         
         function gameLoop(timestamp) {
-            if (portalOpen) {
+            if (readmeOpen) {
                 requestAnimationFrame(gameLoop);
                 return;
             }
@@ -586,8 +581,8 @@
         
         // Event listeners
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && portalOpen) {
-                closePortal();
+            if (e.key === 'Escape' && readmeOpen) {
+                closeReadme();
             }
             keys[e.key.toLowerCase()] = true;
         });

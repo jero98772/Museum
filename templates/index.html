@@ -10,103 +10,135 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: #000;
             display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 20px;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
         }
-
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
+        #container {
+            position: relative;
+        }
+        canvas {
+            border: 2px solid #333;
+            image-rendering: pixelated;
+        }
+        #minimap {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: 2px solid #0f0;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        #hud {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #0f0;
+            font-size: 14px;
+            text-shadow: 2px 2px 4px #000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border: 2px solid #0f0;
+        }
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border: 2px solid #666;
+        }
+        .key {
+            color: #ff0;
+        }
+        #iframe-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 2em;
-        }
-
-        p {
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        input[type="text"] {
-            padding: 15px;
-            font-size: 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        button {
-            padding: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .loading {
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
             display: none;
-            margin-top: 20px;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+        #iframe-overlay.active {
+            display: flex;
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        #iframe-container {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            background: #000;
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 20px #FFD700;
         }
-
-        .loading-text {
-            margin-top: 15px;
-            color: #667eea;
+        #iframe-container iframe {
+            width: 100%;
+            height: calc(100% - 80px);
+            border: none;
+        }
+        #iframe-header {
+            background: #FFD700;
+            color: #000;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-weight: bold;
         }
+        #iframe-description {
+            background: #333;
+            color: #FFD700;
+            padding: 10px;
+            font-size: 14px;
+            border-top: 2px solid #FFD700;
+        }
+        #close-iframe {
+            background: #f00;
+            color: #fff;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        #close-iframe:hover {
+            background: #ff4444;
+        }
+        #door-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FFD700;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border: 3px solid #FFD700;
+            display: none;
+            z-index: 100;
+            text-align: center;
+            max-width: 400px;
+        }
+        #door-text.show {
+            display: block;
+        }
+        #door-description {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #fff;
+        }
+
     </style>
 </head>
 <body>

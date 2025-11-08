@@ -2,14 +2,14 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+
 from tools.github import GitHubRepoFetcher
+from tools.map_generator import generate_random_rooms ,initial_position
+
 import uvicorn
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
-
-# Your GitHubRepoFetcher class should be imported here
-# from your_module import GitHubRepoFetcher
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -21,13 +21,21 @@ async def map_view(request: Request, username: str = Form(...)):
     data = fetcher.fetch_repos()
     print(data)
     print(username)
+
+    repos_amount = len(data)
+    mid = repos_amount//2
+
     
+    generate_map = generate_random_rooms(mid, mid,repos_amount)
+    x,y = initial_position(generate_map)
+    print(x,y)
     # Convert Repository objects to dictionaries for JSON serialization
     repos_data = [
         {
             "title": repo.title,
-            "url": "https://github.com/jero98772",
-            "description": "das"
+            "url":repo.url,
+            "description": repo.description,
+            "readme":repo.readme
         }
         for repo in data
     ]
@@ -35,7 +43,12 @@ async def map_view(request: Request, username: str = Form(...)):
     return templates.TemplateResponse("map.html", {
         "request": request,
         "username": username,
-        "repos_data": repos_data  # Pass the data
+        "repos_data": repos_data,
+        "map":generate_map,
+        "x":x,
+        "y":y,
+        "map_size":mid,
+
     })
 
 
