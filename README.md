@@ -2,7 +2,9 @@
 
 A 3D virtual museum where your GitHub repositories are displayed as interactive portals in a retro first-person dungeon crawler. Walk through procedurally generated corridors, discover golden doors representing your projects, and view their READMEs as curated art pieces.
 
-[![](https://github.com/jero98772/Museum/blob/main/docs/screenshots/banner.png?raw=true)](https://youtu.be/CYTLg_6-w0I)
+![](https://github.com/jero98772/Museum/blob/main/docs/screenshots/banner.png?raw=true)
+
+[Video example](https://youtu.be/CYTLg_6-w0I)
 
 ## 🎮 Features
 
