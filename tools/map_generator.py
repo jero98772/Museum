@@ -18,23 +18,41 @@ def rooms_overlap(room1: Room, room2: Room, padding: int = 2) -> bool:
 
 def generate_random_rooms(width: int = 154, height: int = 154, rooms_n: int = 20) -> List[List[int]]:
     """Generate a map with randomly placed non-overlapping rooms"""
+    # Validate minimum dimensions
+    min_dimension = 10  # Minimum size needed for rooms
+    if width < min_dimension or height < min_dimension:
+        raise ValueError(f"Map dimensions must be at least {min_dimension}x{min_dimension}")
+    
     map_grid = [[1 for _ in range(width)] for _ in range(height)]
     
     rooms = []
     max_attempts = 100
-    room_count = rooms_n# random.randint(min_rooms, max_rooms)
+    room_count = rooms_n
     
     for _ in range(max_attempts):
         if len(rooms) >= room_count:
             break
             
-        # Random room size
-        room_w = random.randint(4, 8)
-        room_h = random.randint(4, 8)
+        # Random room size with bounds checking
+        max_room_w = min(8, width - 4)  # Ensure room fits with padding
+        max_room_h = min(8, height - 4)
         
-        # Random position with border padding
-        room_x = random.randint(1, width - room_w - 2)
-        room_y = random.randint(1, height - room_h - 2)
+        if max_room_w < 4 or max_room_h < 4:
+            break  # Map too small for more rooms
+            
+        room_w = random.randint(4, max_room_w)
+        room_h = random.randint(4, max_room_h)
+        
+        # Calculate max position with bounds checking
+        max_x = width - room_w - 2
+        max_y = height - room_h - 2
+        
+        # Skip if no valid position exists
+        if max_x < 1 or max_y < 1:
+            continue
+            
+        room_x = random.randint(1, max_x)
+        room_y = random.randint(1, max_y)
         
         new_room = Room(room_x, room_y, room_w, room_h)
         
@@ -52,7 +70,8 @@ def generate_random_rooms(width: int = 154, height: int = 154, rooms_n: int = 20
     for room in rooms:
         for y in range(room.y, room.y + room.height):
             for x in range(room.x, room.x + room.width):
-                map_grid[y][x] = 0
+                if 0 <= y < height and 0 <= x < width:
+                    map_grid[y][x] = 0
     
     # Create minimum spanning tree to connect all rooms
     connected = set()
@@ -88,26 +107,31 @@ def generate_random_rooms(width: int = 154, height: int = 154, rooms_n: int = 20
                 x1, y1 = room1.center
                 x2, y2 = room2.center
                 
-                # Horizontal then vertical
+                # Horizontal then vertical with bounds checking
                 for x in range(min(x1, x2), max(x1, x2) + 1):
-                    map_grid[y1][x] = 0
+                    if 0 <= x < width and 0 <= y1 < height:
+                        map_grid[y1][x] = 0
                 for y in range(min(y1, y2), max(y1, y2) + 1):
-                    map_grid[y][x2] = 0
+                    if 0 <= x2 < width and 0 <= y < height:
+                        map_grid[y][x2] = 0
                 
                 connected.add(closest_pair[1])
                 unconnected.remove(closest_pair[1])
     
     # Add some extra random connections for loops
-    for i in range(len(rooms) // 2):
-        room1, room2 = random.sample(rooms, 2)
-        if random.random() < 0.4:  # 40% chance for extra connection
-            x1, y1 = room1.center
-            x2, y2 = room2.center
-            
-            for x in range(min(x1, x2), max(x1, x2) + 1):
-                map_grid[y1][x] = 0
-            for y in range(min(y1, y2), max(y1, y2) + 1):
-                map_grid[y][x2] = 0
+    if len(rooms) > 1:
+        for i in range(len(rooms) // 2):
+            room1, room2 = random.sample(rooms, 2)
+            if random.random() < 0.4:  # 40% chance for extra connection
+                x1, y1 = room1.center
+                x2, y2 = room2.center
+                
+                for x in range(min(x1, x2), max(x1, x2) + 1):
+                    if 0 <= x < width and 0 <= y1 < height:
+                        map_grid[y1][x] = 0
+                for y in range(min(y1, y2), max(y1, y2) + 1):
+                    if 0 <= x2 < width and 0 <= y < height:
+                        map_grid[y][x2] = 0
     
     # Add doors
     door_positions = []
@@ -127,9 +151,9 @@ def generate_random_rooms(width: int = 154, height: int = 154, rooms_n: int = 20
                     if floor_count == 1:
                         door_positions.append((x, y))
     
-    # Place 3-5 doors
-    door_count = rooms_n #random.randint(3, 5)
-    if len(door_positions) > door_count:
+    # Place doors (cap at available positions)
+    door_count = min(rooms_n, len(door_positions))
+    if door_count > 0:
         selected_doors = random.sample(door_positions, door_count)
         for x, y in selected_doors:
             map_grid[y][x] = 2
@@ -137,9 +161,10 @@ def generate_random_rooms(width: int = 154, height: int = 154, rooms_n: int = 20
     # Place exit
     if rooms:
         exit_room = random.choice(rooms)
-        exit_x = exit_room.x + random.randint(1, exit_room.width - 1)
-        exit_y = exit_room.y + random.randint(1, exit_room.height - 1)
-        map_grid[exit_y][exit_x] = 5
+        exit_x = exit_room.x + random.randint(1, max(1, exit_room.width - 1))
+        exit_y = exit_room.y + random.randint(1, max(1, exit_room.height - 1))
+        if 0 <= exit_x < width and 0 <= exit_y < height:
+            map_grid[exit_y][exit_x] = 5
     
     return map_grid
 

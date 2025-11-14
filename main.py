@@ -10,6 +10,8 @@ import uvicorn
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+ 
+Folder= "/data"
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -53,4 +55,4 @@ async def map_view(request: Request, username: str = Form(...)):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=9600)

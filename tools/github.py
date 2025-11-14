@@ -37,7 +37,7 @@ class GitHubRepoFetcher:
     def __init__(self, username: str, cache_file: Optional[str] = None, max_workers: int = 10):
         self.username = username
         self.api_url = f"https://api.github.com/users/{username}/repos"
-        self.cache_file = cache_file or f"{username}_repos.json"
+        self.cache_file = cache_file or f"data/{username}_repos.json"
         self.max_workers = max_workers
         self.print_lock = Lock()
     
