@@ -51,6 +51,45 @@
         const HEIGHT = canvas.height;
         const MAP_SIZE = {{ map_size }};
         const TILE_SIZE = 64;
+        
+        // Load textures
+        const textures = {
+            wall: new Image(),
+            floor: new Image(),
+            github: new Image()
+        };
+        
+        let texturesLoaded = 0;
+        const totalTextures = 3;
+        
+        function onTextureLoad() {
+            texturesLoaded++;
+            if (texturesLoaded === totalTextures) {
+                console.log('All textures loaded');
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        textures.wall.onload = onTextureLoad;
+        textures.floor.onload = onTextureLoad;
+        textures.github.onload = onTextureLoad;
+        
+        textures.wall.onerror = () => {
+            console.error('Failed to load wall.png');
+            onTextureLoad();
+        };
+        textures.floor.onerror = () => {
+            console.error('Failed to load floor.png');
+            onTextureLoad();
+        };
+        textures.github.onerror = () => {
+            console.error('Failed to load github_logo.png');
+            onTextureLoad();
+        };
+        
+        textures.wall.src = '/static/img/wall.png';
+        textures.floor.src = '/static/img/floor.png';
+        textures.github.src = '/static/img/github_logo.png';
      
         const backendRepos = {{ repos_data | tojson | safe }};
         
