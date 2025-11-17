@@ -1,0 +1,482 @@
+[
+  {
+    "title": "AQA",
+    "url": "https://github.com/son0p/AQA",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "ardourControl",
+    "url": "https://github.com/son0p/ardourControl",
+    "description": "An attempt to control ardour via OSC",
+    "readme": "ardourControl\n=============\n\nAn attempt to control ardour via OSC\n"
+  },
+  {
+    "title": "aeromostra",
+    "url": "https://github.com/son0p/aeromostra",
+    "description": "Aeromostra",
+    "readme": "aeromostra\n==========\n\nAeromostra\n"
+  },
+  {
+    "title": "ardenJardines-website",
+    "url": "https://github.com/son0p/ardenJardines-website",
+    "description": "ardenJardines web ",
+    "readme": null
+  },
+  {
+    "title": "amplificacionEnsamblesAcusticos",
+    "url": "https://github.com/son0p/amplificacionEnsamblesAcusticos",
+    "description": "Ciclo de estudio de la amplificación de ensambles acústicos",
+    "readme": "Ciclo de estudio de Amplificacion de Ensambles Acústicos\n===============================\n\nIniciar con:\n\n* [De qué se trata esto?](divulgacion.md)\n* Ciclo de estudio\n\n"
+  },
+  {
+    "title": "aqav80",
+    "url": "https://github.com/son0p/aqav80",
+    "description": null,
+    "readme": "## Agentes de la Calidad del Aire (AQAV80)\nCuando se desea profundizar en el problema de la calidad del aire en Medellín nos encontramos con varios obstáculos debido a la complejidad del problema y la limitada capacidad de los ciudadanos para recolectar y examinar las mediciones.\nEl Kit AQA se esfuerza por acercar al ciudadano a la posibilidad de medir y analizar el aire que respira. De hecho, en las actividades propuestas se aprende a ensamblar un dispositivo para la medición del materialparticulado, y se considera unas herramientas para el estudio de las mediciones.\nEs en los detalles del ensamblaje y el uso de las herramientas de análisis donde se puede pensar con las manos y entrar en relación directa con el problema de la calidad del aire.\n\n## Enlaces\n  * [Ejemplo de la trama de datos](https://raw.githubusercontent.com/daquina-io/VizCalidadAire/master/data/points.csv) https://raw.githubusercontent.com/daquina-io/VizCalidadAire/master/data/points.csv\n  * [Foro](https://comunidad.unloquer.org/) comunidad unloquer  https://comunidad.unloquer.org/\n  * [wiki](http://wiki.unloquer.org/personas/brolin/proyectos/agentes_calidad_aire) wiki unloquer http://wiki.unloquer.org/personas/brolin/proyectos/agentes_calidad_aire\n  * [mapa de mediciones](http://daquina.io/aqaviz/) daquia.io http://daquina.io/aqaviz/\n  * [Licensed under the TAPR Open Hardware License](www.tapr.org/OHL): www.tapr.org/OHL\n\n\n## ¿De donde vienen los datos? -> de estos sensores: \n\n * dht11 --> temperatura y humedad \n * plantower --> material particulado\n * max9814 --> ruido\n\n## ¿Hacia donde salen los datos?\n\n  * [mapa de mediciones](http://daquina.io/aqaviz/) daquia.io http://daquina.io/aqaviz/\n  * [los dash board](http://aqa.unloquer.org:8888/sources/2/chronograf/data-explorer) chronograf http://aqa.unloquer.org:8888/sources/2/chronograf/data-explorer\n  en la parte de  v80.autogen\n\n## ¿Como comprender el codigo de colores de los LEDs?\nel color gradiente de los leds funciona mientras mas intenso el color mas contaminacion  y menos inteso el color  menos contaminacion\n\nel color gradiente de los leds funciona mientras mas intenso el color mas contaminacion y menos inteso el color menos contaminacion \n\ncolor > 13 resultado genrlamente verde \n\n13 < color < 35 resultado  generamente amarillo\n\n35 < color < 55 resultado  generalmente naranja\n\n55 < color < 75 resultado  generalmente rojo\n\n75 < color < 255 resultado  generalmente morado\n\ncolor < 255 marron\n\n## ¿Como lo instalo? \n\nDescarga el repositorio\n\n          git clone -b AQAV80_modular https://github.com/jero98772/aqav80.git\n\n\nUsando Visual Studio Code, aka Code en sistemas GNU/Linux. Es tan facil como instalar Platformio y asegurarse que en el archivo platformio.ini se nombre el dispositivo que queremos flashear:  upload_port = /dev/ttyUSB0  \n\nLea aqui: https://comunidad.unloquer.org/t/como-programar-el-aqa/33/7\n\nEn el archivo main.cpp se deben cambiar los valores para ubicacion y datos de la red que se utilizara para enviar los datos capturados, entre los cuales estan, por ejemplo estos:\n\n#define FIXED_LAT \"6.167222\"  \n#define FIXED_LON \"-75.426667\"  \n#define SENSOR_ID \"Rionegro\"  \n\ny, mas abajo en el mismo archivo:\n\n\n#define WIFI_SSID \"ESSID/Nombre de la red\"  \n#define WIFI_PASS \"PASSWORD/Clave de la red\"  \n\nPara otras maneras de instalarlo lea aqui: \n[enlace a como instalarlo en comunidad unloquer](https://comunidad.unloquer.org/t/cargar-el-firmware-desde-linea-de-comando/118) \n\n#### un breve resumen paso a paso\n\n1. configurar el sensor en el archivo scr/main.cpp , recuerde guardar cambios\n2. $ pio run  ,para compilar  el codigo con las nuevas configuraciones . recurde instalar [platformio](https://pypi.org/project/platformio/)\n3. $ esptool.py --port /dev/ttyUSB0  write_flash 0x00000 .pio/build/d1_mini/firmware.bin ,el puerto no siempre es /dev/ttyUSB0 , recuerde instalar [esptool](https://pypi.org/project/esptool/)\n\nmas informacion [aqui](https://comunidad.unloquer.org)\n\n## como puedo especificar los modulos y modos que voy a usar?\npuedes especificar que vas a usar dentro de estas macros\n\n\t#define SENSOR_ID \"aprendiedo\"\n\t#define INTERNET\n\t#define DHT_SENSOR\n\t#define MIC\n\t#define APP\n\t#define GPS\n\t#define MAP\n\t#define LED\n\t#define LED_CODE\n\t#define DEBUGGING\n\ncuando espcificas el puede ser mas eficiente que otros por que se hace un binario decuerdo a lo que nesesitas \n\nes diferente a no usar algunas funciones que estan consumiedo recursos en la memoria\n\nespesificando con macros no se compilan esas funciones entonces no van haber problemas de funciones en desuso consumiedo recursos \n\nespecificando el tipo de sesnor \"aqav80\" seria :\n \n\t#define SENSOR_ID \"v80_aprendiedo\"\n\t#define INTERNET\n\t#define DHT_SENSOR\n\t#define MIC\n\t//#define APP\n\t//#define GPS\n\t//#define MAP\n\t#define LED\n\t//#define LED_CODE\n\t//#define DEBUGGING\n\n\n## Contacto \n\n * irc --> #un/loquer en irc.freenode.net\n * twitter --> [twitter de unloquer](https://twitter.com/unloquer?lang=es) enlace a https://twitter.com/unloquer?lang=es\n"
+  },
+  {
+    "title": "algo0ritmos",
+    "url": "https://github.com/son0p/algo0ritmos",
+    "description": null,
+    "readme": "\nalgo0ritmos\n===============\n\nComunidad para aprender a escribir algoritmos bailables, en vivo.\n\nAlgunos teóricos [cita] consideran educativa la experiencia, tanto para los testigos que pueden ver como la música reacciona de manera instantánea al cambiar alguna rutina en el código, como para los escritores de código que tiene que elevar, a nivel performático, sus habilidades de programación.\n\nEscribir código para el baile, mezclado con la adrenalina que produce el riesgo al programar en vivo, permite usar la matemática, lógica y las abstracciones simbólicas de una forma alternativa a la educación tradicional, así al practicante aprende en los entornos donde se divierte.\n\n\n[Wiki](https://musica.unloquer.org/aprendizaje/algo-ritmos/start)\n[Trello](https://trello.com/b/iWfoT3DI/algo-ritmos)\n\n# Entornos para aprendizaje de código en vivo y música generativa\n\nEste proyecto fue financiado por Medellín Vive La Música durante dos años\n\n## Uso\nInstale ChucK http://chuck.cs.princeton.edu/release/\n\nLa carpeta [practicas](practicas/) contiene ejercicios descritos en el [wiki]((https://musica.unloquer.org/aprendizaje/algo-ritmos/practicas/start)\n\n"
+  },
+  {
+    "title": "apariciones",
+    "url": "https://github.com/son0p/apariciones",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "AgenteSensores",
+    "url": "https://github.com/son0p/AgenteSensores",
+    "description": null,
+    "readme": "# Agentes Sensores \\(versión: Calidad del Aire\\)![](/assets/viz.png) ![](/assets/sensor_data.png)[http://aqa.daquina.io:8888/sources/1/dashboards/2](https://www.gitbook.com/book/alejoduque/agentesensores/edit#)\n\n#### Con el desarrollo de una Hacktividad en Plataforma Bogotá pretendemos dar inicio a la implementación y construcción colectiva de una red de sensores que miden la calidad del aire que respiramos. Un proyecto que ha estado en desarrollo desde hace 2 años en el Hackerspace un/loquer \\(Medellín\\). \\(red ciudadana, no oficial, de manera alternativa\\)\n\n#### Este proyecto se da dentro practicas definidas como \"Ciencia de Garaje\" \\(o mejor, de barrio\\) y que consideramos mas fuerte que la tan impulsada \"Ciencia Ciudadana\" que obedece a verticalidades tipo \"Top-Down\", inmersas en el discurso de la innovación; esas que dejan de lado la importancia del desarrollo local capaz de auto-gestionar, autorregular y replicar proyectos.\n\n#### Es así como un/loquer ha logrado existir durante mas de una década, investigando en diferentes ámbitos, desde el trabajo con redes e infraestructuras libres y sistemas de riego a talleres de aprendizaje de software con comunidades cercanas y afines.\n\n#### El presente proyecto, denominado Agentes Sensores \\(Para la medición de Calidad del Aire\\), ha logrado avanzar durante los pasados 2 años  y cuenta hoy con un diseño de hardware \"hecho en casa\" que soporta e incluye un \\(1\\) sensor de calidad del aire, un \\(1\\) sensor de humedad, luces LED's y autonomía eléctrica. Ademas incluye un G.P.S que nos permite visualizar en un mapa de la cuidad los datos capturados. Tanto hardware como software son de carácter libre.\n\n#### En tiempo real el sistema nos deja saber a través de un código de color emitido por un sistema de LED's el estado de las mediciones que realiza el sensor. Si estamos en un espacio abierto o cerrado siempre podremos ver si las partículas pm2.5 que entran en el están mas arriba de los limites que podemos respirar. \\(retroalimentar via luces escala de colores\\)\n\n#### Para la edicion de** Plataforma Bogota** planteamos un taller de un dia en el que se implementaran entre 6 a 12 dispositivos moviles que les permitiran a los participantes de la hacktividad medir la calidad del aire del centro histórico y sus alrededores en el distrito capital, como un primer ejercicio de captura de datos que se visualizaran en un mapa en tiempo real.\n\n#### Conscientes de que seremos cuestionados por la precision de la calibración de los sensores, estamos listos a responder de diferentes maneras para defender la importancia del ejercio de medicion, hecho con nuestros propios recursos -algo tan importante como el aire que respiramos- y así despertar una consciencia que busque de un dialogo que nos ayude a mejorar la situación.\n\n#### Todos los resultados, al igual que el proceso del taller, quedaran documentados de manera libre y abierta. Permitiendo e impulsando la construcción y apropiación libre que nos ayude a desplegar mas Agentes Sensores. Compartiremos con las personas participantes cada detalle respecto a los componentes requeridos, utilizando la plataforma github al igual que un manual de uso escrito al estilo de una historieta.\n\n#### ---\n\n#### En un modelo informado por múltiples capas estructuradas a través de protocolos encontramos la definición del Stack o Pila de Benjamin Bratton que nos ayuda a definir cómo las tecnologías de red operan de manera modular, son interfaces conectadas por protocolos, una capa sobre otra. Es así como nos disponemos a ser agentes que miden la calidad del aire que respiramos.\n\n\n\n"
+  },
+  {
+    "title": "ardour-cue-caller",
+    "url": "https://github.com/son0p/ardour-cue-caller",
+    "description": null,
+    "readme": "# Cue Caller \n\n![Cue Caller](cueCaller_script_lua.png)\n\nA lua script to use Ardour for change comments on multiple tracks following playhead position.\n\n## Use Case\n\nSome live concerts use timecode to sync events (video, lights, fireworks, audio scenes, etc) Ardour can sync to timecode and the script can sync alert messages for humans involved.\n\nSome examples:\n\n* FOH audio operator can have alerts on solo instruments,  mute sections, global settings of a song (key, tempo, etc), effects related to lyrics\n* Video Operator can lead cameras to solos\n* Light Operatos can lead follow spots, be aware of special momments\n* Telepronter can sync lyrics and alerts to timecode\n* Choreographer can lead dancers\n\n\n## TODO:\n  * Find a data structure to read-write from lua safe to edit comments without touch the script.\n  * Find a convenient way to increase font size of comments box (can be done recompiling Ardour or changing de global font size)\n  * Find a way to brodcast track comments \n    * Browser ?\n    * ChatBot? Messenger ?\n    * Android app in a local network ?\n\n\n"
+  },
+  {
+    "title": "audio_MDE",
+    "url": "https://github.com/son0p/audio_MDE",
+    "description": "Sonido en Medellin ",
+    "readme": "audio_MDE\n=========\n\nSonido en Medellin \n"
+  },
+  {
+    "title": "audio_scripts",
+    "url": "https://github.com/son0p/audio_scripts",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "blog",
+    "url": "https://github.com/son0p/blog",
+    "description": "blog",
+    "readme": "blog\n====\n\nblog\n"
+  },
+  {
+    "title": "capitulosLibroCasasDeMusica",
+    "url": "https://github.com/son0p/capitulosLibroCasasDeMusica",
+    "description": "Repoistorio para escritura colaborativa de documento filosófico de Casas de música",
+    "readme": "capitulosLibroCasasDeMusica\n===========================\n\nRepoistorio para escritura colaborativa de documento filosófico de Casas de música\n"
+  },
+  {
+    "title": "aurolote",
+    "url": "https://github.com/son0p/aurolote",
+    "description": "Ensayo sobre el misterio en el oficio del operador de sonido.",
+    "readme": "aurolote\n========\n\nEnsayo sobre el misterio en el oficio del operador de sonido.\n"
+  },
+  {
+    "title": "casasDeLaMusica",
+    "url": "https://github.com/son0p/casasDeLaMusica",
+    "description": "Casas de la Musica ",
+    "readme": "# Casas de la Musica \n---\n- [Comité Filosófico](comiteFilosofia.md)\n- [Comité Pedagógico](comitePedagogia.md)\n\n---\n\n* [eeleX](https://github.com/son0p/eeleX) \n"
+  },
+  {
+    "title": "chucK",
+    "url": "https://github.com/son0p/chucK",
+    "description": null,
+    "readme": "###chucK \n=====\n"
+  },
+  {
+    "title": "Chuckproceso",
+    "url": "https://github.com/son0p/Chuckproceso",
+    "description": "archivo con el proceso de el aprendizaje en chuck music",
+    "readme": "# Chuckproceso\narchivo con el proceso de el aprendizaje en chuck music\n"
+  },
+  {
+    "title": "CHmUsiCK",
+    "url": "https://github.com/son0p/CHmUsiCK",
+    "description": "Musical Simple Interface beta version",
+    "readme": "#CHmUsiCK\n========\n\n_______________\n##Musical Simple Interface\n\nCHmUsick 0.01 (beta version)\n---------------\n\nInstall chuck, clone this repo, copy any of the examples in the file called LiveCode.ck and run Library.ck.\n\n-------------\n### For command line users\nIn a terminal\n\n```$ chuck --loop```\n\nIn another terminal\n\n```$ chuck add Library.ck```\n\nRun an example\n\n```$ chuck Library/Examples/<example name>.ck```\n\nEdit the file as you like and replace with:\n\n```$ chuck = <shred number> Library/Example/<example name>.ck```\n\n\n"
+  },
+  {
+    "title": "ChucK-classes-and-patches",
+    "url": "https://github.com/son0p/ChucK-classes-and-patches",
+    "description": "Chuck classes and patches",
+    "readme": "Chuck\n==============\n\n## Classes\n- MelodyGenerator: Given a root note and mode number returns a random array of notes.\n- Mode: Given a root note and mode number returns an array of notes.\n\nA rudimentary example can be running\n\n\tgit clone https://github.com/son0p/ChucK-classes-and-patches\n\n\tcd Chuck-classes-and-patches\n\n\tcd melodyGenerator\n\t\n\tchuck initialize.ck\n\n"
+  },
+  {
+    "title": "ChucKSocial",
+    "url": "https://github.com/son0p/ChucKSocial",
+    "description": "Herramientas para sincronizar ChucK con otros instrumentos",
+    "readme": "ChucKSocial\n===========\n\nHerramientas para sincronizar ChucK con otros instrumentos\n"
+  },
+  {
+    "title": "creacion-musical-para-el-hiphop",
+    "url": "https://github.com/son0p/creacion-musical-para-el-hiphop",
+    "description": null,
+    "readme": "Hola.\nAquí anexaremos toda la inormación de las secciones \"producción musical de Hip-Hop en la Ladera\"\n\nUtilizaremos el Programa Arduor.\n\nPasos para instalar en mavericks\n\n1. Descargar Ardour. http://www.macupdate.com/app/mac/17260/ardour\n2. Instalar Jack. Para instalar jack recomiendo instalar el gestor de paquetes HomeBrew. Link para instalar homeBrew http://brew.sh/\n3. una vez instalado HomeBrew. Abrir la terminal y escribir el siguiente comando:\n    brew install jack.\n4.\n"
+  },
+  {
+    "title": "codigo_comentado__ardour",
+    "url": "https://github.com/son0p/codigo_comentado__ardour",
+    "description": "To install go to original repo",
+    "readme": "Do not install ardour from here, go to original repo https://github.com/Ardour/ardour \n\nNo installe Ardour desde aquí, vaya al repositorio original : https://github.com/Ardour/ardour\n\n---\n\nEste repositorio es con fines de aprendizaje y contiene comentarios en español del código de Ardour\n\nAlgunas lecturas para tener contexto:\n\nTaller de Ardour donde se explica su arquitectura http://tu.linuxaudiosystems.com/dawd\n\nArquictura de aplicaciones de código abierto donde hay capítulo de Audácity http://aosabook.org/en/index.html\n\n---\n## Track Input\n### Meter Input\n[meter.h](https://github.com/son0p/codigo_comentado__ardour/blob/master/libs/ardour/ardour/meter.h)\n\n[Ajusta el medidor por defecto](https://github.com/son0p/codigo_comentado__ardour/blob/master/libs/ardour/route.cc#L124)\n### ARDOUR::Diskstream\n[diskstream.cc](https://github.com/son0p/codigo_comentado__ardour/blob/master/libs/ardour/diskstream.cc)\n  * Es una manera de mover datos desde y hacia el disco\n  * Grandes Buffers circulares (lock-free) \n    * => leer http://www.rossbencina.com/code/lockfree?q=~rossb/code/lockfree/\n    * => leer https://es.wikipedia.org/wiki/Buffer_circular\n    * => leer http://www.wannabegeek.com/?p=532\n    \n### Monitoring\n### Polarity\n### Meter Pre\n### Mute / solo\n### Pre-fader redirects\n### Mute / solo\n### Gain\n### Post-Fader redirect\n### Meter Post\n### Mute / Solo\n### Pan\nDada una configuración de entrada/salida se usa [panner_shell.h](https://github.com/son0p/codigo_comentado__ardour/blob/master/libs/ardour/ardour/panner_shell.h) para instanciar y configurar un objeto de paneo apropiado.\n### Track Output\n    \n\n\n\n\n"
+  },
+  {
+    "title": "cryptomoneda_cult_bitbog",
+    "url": "https://github.com/son0p/cryptomoneda_cult_bitbog",
+    "description": "crypto moneda cultural",
+    "readme": "## El potencial cultural del Blockchain \\(Cadena de Bloques\\)\n\n![](/assets/cadenadebloques.png)\n\n#### Vemos hoy como gobiernos locales y hasta países implementan a partir del Blockchain \\(cadenas seguras/encriptadas, anónimas y trazables\\) la validación inmutable de intercambios; ya no solo monetarios \\(Bitcoin\\* y similares\\) pero tambien con reportes, contrataciones y para retribuir comunidades que operan desde una horizontalidad organizacional o de trabajo voluntario.\n\n\\*Bitcoin está valorado hoy en casi 100 billones de dólares. Existen 14 millones de monederos que ayudan a validar y hacer inmutables las tablas o índices de intercambios que se dan en dicha red.\n\n#### Pretendemos realizar una Hacktividad en Plataforma Bogotá para estudiar y sentar las bases que nos permitan concebir la Cadena de Bloques \\(Blockchain\\) no solo como una herramienta financiera. Pero si, como dispositivo o artefacto cultural, ya que sus implicaciones en tanto lo social y económico afectan y dan forma actualmente a sistemas de organización social y política.\n\n## Fechas tentativas:\n\n#### Cualquier fin de semana a partir de la segunda semana de Abril. Pensamos que el dia ideal es el Sábado, pero no estamos seguros ya que depende un poco de cómo se dan las Hacktividades.\n\n# Presupuesto para un \\(1\\) día de taller:\n\n#### $1.200.000\n\n#### Este incluye un ejercicio práctico usando python para la creación de una Cadena de Bloques, el planteamiento de una Cripto Moneda Cultural partiendo de un capital cultural que promueva asistencia vía la asociación de salas de cine, conciertos, teatro, conferencias y hasta talleres. Partimos de la premisa: Cómo dinamizar socialmente a un grupo para que sus acciones al hacer parte de una Cadena de Bloques \\(Blockchain\\) permitan facilitar el acceso a la cultura a personas que normalmente están al margen? Para acercar públicos y salas? Para abrir espacios en esos otros eventos culturales?. El taller será dirigido por 3 personas. 2 provenientes de Medellín y una local.\n\n### Gastos por desplazamiento, hospedaje y alimentación de 2 personas que viajan desde Medellín por dos noches.\n\n#### $1'000.000\n\n### Total: 2'200.000\n\nReferencia de proyectos locales \\(Bogota\\):  \n[http://www.bogota.gov.co/temas-de-ciudad/educacion/con-tecnologia-tic-estudiantes-de-colegios-elegiran-a-sus-personeros](http://www.bogota.gov.co/temas-de-ciudad/educacion/con-tecnologia-tic-estudiantes-de-colegios-elegiran-a-sus-personeros)\n\n"
+  },
+  {
+    "title": "compound",
+    "url": "https://github.com/son0p/compound",
+    "description": "sistema de composición",
+    "readme": "compound\n========\n\nsistema de composición\n"
+  },
+  {
+    "title": "creacion_en_la_dificultad",
+    "url": "https://github.com/son0p/creacion_en_la_dificultad",
+    "description": "Contenidos de clase maestra para Antioquia Vive la Música",
+    "readme": "# creacion_en_la_dificultad\nContenidos de clase maestra para Antioquia Vive la Música\n"
+  },
+  {
+    "title": "cueCaller",
+    "url": "https://github.com/son0p/cueCaller",
+    "description": null,
+    "readme": "# gruposSails\n\na [Sails](http://sailsjs.org) application\n"
+  },
+  {
+    "title": "datasets",
+    "url": "https://github.com/son0p/datasets",
+    "description": "Repositorio qué contiene todos los datasets proporcionados a nuestro colectivo ¡Qué viva el Open Data!",
+    "readme": "# Datasets\nRepositorio que contiene todos los datasets proporcionados a nuestro colectivo ¡Qué viva el Open Data!\n\n# Listado de datos\n\n* Ambiente\n  * Calidad del Aire\n    * Datos SIATA (datos disponibles desde el 2012-07-06 al *2017-02-28*).\n    * Datos ITM (datos disponibles desde 2016-04-08 al *2016-04-25*).\n\n# Contribuciones\n\n1. ¿Deseas contribuir a este repo? ¡Haz un ***fork*** y crea un ***PR***!\n2. ¿Encontraste un problema con la información? ¿Deseas compartir un diccionario de datos? ¡Crea un ***Issue***!\n\n# Contáctanos\n\n* Explora:  [http://datosabiertosmedellin.org](http://datosabiertosmedellin.org)/\n* Conecta:  [Meetup](http://bit.ly/datos-abiertos-medellin)\n* Conversa: [Slack](https://datosabiertos.slack.com)\n* Comparte: [Twitter](https://twitter.com/databiertosmed)\n* Mira: [Youtube](https://www.youtube.com/channel/UCs-zp4XlO-J9oc-ZNiBPNSQ) or [Archive](https://archive.org/details/@datos_abiertos_medell_n)\n* Desarrolla: [Github](https://github.com/DatosAbiertosMedellinOrg)\n"
+  },
+  {
+    "title": "dataSets_grupos_medellin",
+    "url": "https://github.com/son0p/dataSets_grupos_medellin",
+    "description": null,
+    "readme": "# dataSets_grupos_medellin\n"
+  },
+  {
+    "title": "dataPatata",
+    "url": "https://github.com/son0p/dataPatata",
+    "description": "Semillero para el uso creativo de datos",
+    "readme": "dataPatata\n==========\n\nSemillero para el uso creativo de datos\n"
+  },
+  {
+    "title": "dataSet_grupos_casa_estrategias",
+    "url": "https://github.com/son0p/dataSet_grupos_casa_estrategias",
+    "description": null,
+    "readme": "# dataSet_grupos_casa_estrategias\n"
+  },
+  {
+    "title": "echoes",
+    "url": "https://github.com/son0p/echoes",
+    "description": "Echoes is a media player based on youtube search service with emphasis on media player UX. Overall, it's a sample web application that is based on Backbone.js, Underscore & RequireJS libraries.",
+    "readme": "# Echoes Player ~(EMC)\nEchoes is a great youtube player developed by [Oren Farhi](http://orizens.com).\nIt's fun & easy to listen or watch videos from youtube with Echoes.\nWhat if youtube was designed to be used as music player?\n\nEchoes Player is also available as a [Chrome Application](https://chrome.google.com/webstore/detail/echoes-player/aaenpaopfebcmdaegggjbkhaedlbbkde)\n\nIt can be regarded as the Media Player experience for youtube listening pleasure.\nOther than that - it's a sample web app built with Backbone, Bootstrap and Require.js.\nIt is the full version of [Tikal's Backbone Workshop Project](http://tikalk.com).\n\n## Updates & Help\nEchoes is constantly developed and enhanced with missing features such as creating playlists, organizing by albums or other favorite attribute.\nYou may suggest, contribute or reporting various issues in the [issues](https://github.com/orizens/echoes/issues) system.\n\n## Developer Notes\n\nto run and build the project, please install:\n* nodejs\n* gruntjs\n* bower.io\n\non shell, run:\n```shell\nnpm install\nbower install\n```\n### Development mode\nTo run the project, please use:\n```shell\ngrunt serve\n```\n\n### Grunt Build\nto create a build for production, run\n```shell\ngrunt build\n```\nto create a build for production and publish on gh-pages branch, run:\n```shell\ngrunt buildgit\n```\nthis will create a build on a .tmp directory, checkout gh-pages and copy the build to it.\nnext steps to publish to gh-pages are:\n* add & commit changes and new additions\n* push the branch to remote (github currently)\n\n### CSS\nLESS is integrated as well as requirejs build. \nThis are compiled using grunt modules both in dev and build modes:\n1. LESS modules.less\n2. RequireJS style.css\n\n[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/orizens/echoes/trend.png)](https://bitdeli.com/free \"Bitdeli Badge\")\n"
+  },
+  {
+    "title": "dataSet_grupos_casa_teatro",
+    "url": "https://github.com/son0p/dataSet_grupos_casa_teatro",
+    "description": null,
+    "readme": "# dataSet_grupos_casa_teatro\n"
+  },
+  {
+    "title": "Encuentro-m-sica-Medell-n",
+    "url": "https://github.com/son0p/Encuentro-m-sica-Medell-n",
+    "description": "Archivos que describen el contenido del encuentro de mùsica que se realizará en Medellín el 19 de julio",
+    "readme": "# Encuentro-m-sica-Medell-n\nArchivos que describen el contenido del encuentro de mùsica que se realizará en Medellín el 19 de julio\n"
+  },
+  {
+    "title": "episodios_hasta_el_hueso_anotados",
+    "url": "https://github.com/son0p/episodios_hasta_el_hueso_anotados",
+    "description": "Anotaciones sobre los episodios de Hasta el Hueso",
+    "readme": "* Episodios Hasta El Hueso (Anotados)\nDesambiguación: Hasta el Hueso se refiere a una serie de episodios, ambientados en Medellín,  con la participación de invitados y la orientación de Jehny Duque,  Lukas Jaramillo, Martha Pelaez, Juliana Betancur, entre otros.\n\n\n[[https://github.com/son0p/episodios_hasta_el_hueso_anotados/blob/main/hasta_el_hueso_EP21.org][Hasta_el_hueso_EP_21]]\n\n[[https://github.com/son0p/episodios_hasta_el_hueso_anotados/blob/main/hasta_el_hueso_EP23.org][Hasta_el_hueso_EP_23]]\n"
+  },
+  {
+    "title": "emacs-modes",
+    "url": "https://github.com/son0p/emacs-modes",
+    "description": "some adapted emacs modes",
+    "readme": "emacs-modes\n===========\n\nsome adapted emacs modes\n"
+  },
+  {
+    "title": "especificaciones",
+    "url": "https://github.com/son0p/especificaciones",
+    "description": "Sistema Abierto de Apariciones en el Territorio",
+    "readme": "# Apariciones Abiertas\nSistema Abierto de Apariciones en el Territorio\n\n[Especificaciones](especificaciones.md)\n\n[Datos](https://github.com/son0p/apariciones_proyectos_musicales)\n\n[Ayuda](help.md)\n"
+  },
+  {
+    "title": "EscuelaDeExperimentos",
+    "url": "https://github.com/son0p/EscuelaDeExperimentos",
+    "description": "Escuela de electrónicas eXtrañas",
+    "readme": "\n# Escuela de Experimentos\n\n![Sequenciador Humano](https://github.com/son0p/casaDeExperimentos/raw/master/imagenes/mediaSeqHumano.png)\n\n*Proyecto que hace parte de [medellinvivelamusica.com](http://medellinvivelamusica.com)*\n\n----\n\n  * [Calendario](https://www.google.com/calendar/embed?src=fmm3p4dichknj7mkj5hh8tommc%40group.calendar.google.com&ctz=America/Bogota)\n  * [wiki](http://wiki.medellinvivelamusica.com/)\n"
+  },
+  {
+    "title": "estructurar_informacion",
+    "url": "https://github.com/son0p/estructurar_informacion",
+    "description": "Herramientas para estructurar información",
+    "readme": "# Estructurar Información\n## Temas:\n\n### Problema: Acceder/Extraer/Recolectar información\n\n### Problema: Clasificar Información\n\n### Problema: Relacionar información\n  - Con el mismo documento\n  - Con otros documentos\n  - Con el contexto\n  - Con entes específicos\n\n### Problema: Escalar el sistema de información\n    \n   Una vez se encuentra un sistema para estructurar la información hay que verificar su capacidad de procesar una gran cantidad de documentos, en algunos casos la cantidad de documentos a estructurar supera la capacidad de una persona o personas (miles de documentos) en este caso se deben preveer herramientas para que las máquinas puedan  ayudar en ese proceso.\n\n### Problema: Compartir y colaborar con la información\n     \n Versiones, Autores, Conflictos\n\n### Problema: Presentar la información\n     \n   Visualización, indicadores, fenómenos\n\n### Problema: Información reproducible y copias de respaldo\n\n### Problema: Organizar los datos en formas que faciliten la manipulación, el análisis y la sintetización\n     \n   Data-wrangling, Tidy data -> https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf http://openrefine.org http://vita.had.co.nz/papers/tidy-data.pdf https://ramnathv.github.io/pycon2014-r/explore/tidy.html\n\nTodos estos problemas son comunes en un proceso que maneje información para un objetivo específico. Si no existe un objetivo definido para el cual usted está recolectando, almacenando, analizando, sintetizando la información empiece por ahí. **¿Para qué?, ¿Qué espero producir con esta información?** plantee un proceso a la inversa, desde el **¿para qué?** y devuélvase advirtiendo cada una de las situaciones que exponemos antes hasta llegar al momento de la **recolección** de los datos.\n\n\"Better an approximate answer to the right question than a precise answer to the wrong question.\" JWTukey\n\nSiguiendo con esta misma idea, algunos ¿para qué? pueden ser los siguientes:\n\n- Informes de la alcaldía\n- Seguimiento a un proceso\n- Registro audiovisual (un documental, clips de video)\n- Construcción de una publicación\n- **¿Qué otros se le ocurren?**\n\nLos problemas listados los podemos agrupar en los siguientes momentos siguiendo la lógica de pensar el proceso a la inversa. Algunos los vamos a encontrar en casí todos los momentos.\n\n## Presentación de resultados\n\n- Problema 6: Información reproducible y copias de respaldo\n- Problema 5: Presentar la información\n- Problema 4: Compartir y colaborar con la información\n- Problema 3: Escalar el sistema de información\n\n## Análisis\n\n- Problema 6: Información reproducible y copias de respaldo\n- Problema 4: Compartir y colaborar con la información\n- Problema 2: Relacionar información\n- Problema 1: Clasificar Información\n\n## Preprocesar datos\n\n- Problema 7: Organizar los datos en formas que faciliten la manipulación, el análisis y la sintetización\n- Problema 6: Información reproducible y copias de respaldo\n\n## Recolección de datos\n\n- Problema 6: Información reproducible y copias de respaldo\n- Problema 0: Extraer/Recolectar información\n\n\n## Posibles soluciones a problemas usando wiki\n\n[soluciones_wiki](soluciones_wiki.md)\n\n## Posibles soluciones a problemas usando Emacs-Org\n\n[soluciones_emacs_org_mode](soluciones_emacs_org_mode.org)\n\n## Ideas sueltas:\n- Retormar buenas prácticas de la presentación de inspiralab sobre formatos de texto plano, que pueda abrir un humano sin restricciones y también pueda entender una máquina\n\n## Referentes:\nGithub para no programadores -> https://plot.ly/r/github-getting-started-for-data-scientists/\n"
+  },
+  {
+    "title": "evaMining",
+    "url": "https://github.com/son0p/evaMining",
+    "description": "Shiny Dashboard to budget mining",
+    "readme": "# evaMining\nShiny Dashboard to budget mining\n\ndemo: http://daquina.io/evaMining/\n"
+  },
+  {
+    "title": "eventos-cm-mde",
+    "url": "https://github.com/son0p/eventos-cm-mde",
+    "description": null,
+    "readme": "# EventosEM\n\na [Sails](http://sailsjs.org) application\n"
+  },
+  {
+    "title": "eventos-cm-mde_v2",
+    "url": "https://github.com/son0p/eventos-cm-mde_v2",
+    "description": null,
+    "readme": "# EventosEMv2\n\na [Sails](http://sailsjs.org) application\n"
+  },
+  {
+    "title": "exploracion_datos",
+    "url": "https://github.com/son0p/exploracion_datos",
+    "description": null,
+    "readme": "# exploracion_datos\n"
+  },
+  {
+    "title": "gestionfestivales",
+    "url": "https://github.com/son0p/gestionfestivales",
+    "description": "documentar la gestion de festivales a nivel local, nacional e internacional",
+    "readme": "### Gestión de Festivales en barrios\n[divulgación](divulgacion.md)\n"
+  },
+  {
+    "title": "foh_pseudo_language",
+    "url": "https://github.com/son0p/foh_pseudo_language",
+    "description": "A pseudo language for structure knowledge around FOH (Front of House) audio and mental activities",
+    "readme": "# foh_structured_language\nA pseudo language for structured knowledge around FOH (Front of House) audio and mental activities.\n\n## Why?\nSome audio operators, that are going to retire, want to testify (in a subjetive way), some perspective.\n\n## Where?\n\n[Reference online HTML ](https://son0p.github.io/foh_pseudo_language/reference.html)\n\n[Reference .org file](https://son0p.github.io/foh_pseudo_language/reference.org)\n"
+  },
+  {
+    "title": "folletos",
+    "url": "https://github.com/son0p/folletos",
+    "description": "Información estructurada en prosa sobre algunas temáticas",
+    "readme": "# folletos\nInformación estructurada en prosa sobre algunas temáticas\n\n[Memoria taller Pauer (comfama)](https://son0p.github.io/folletos/tmp_pauer.html)\n\n[Mantenganse Raros](https://son0p.github.io/folletos/publica_raros_nigredo.html)\n\n\n[Audio en Directo](https://son0p.github.io/folletos/pub_audio:directo.html)\n"
+  },
+  {
+    "title": "hello",
+    "url": "https://github.com/son0p/hello",
+    "description": "To follow the hintjens C book",
+    "readme": null
+  },
+  {
+    "title": "helpers",
+    "url": "https://github.com/son0p/helpers",
+    "description": null,
+    "readme": "# helpers\n"
+  },
+  {
+    "title": "info_estructurada",
+    "url": "https://github.com/son0p/info_estructurada",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "imagenes_para_extraer_informacion",
+    "url": "https://github.com/son0p/imagenes_para_extraer_informacion",
+    "description": null,
+    "readme": "# imagenes_para_extraer_informacion"
+  },
+  {
+    "title": "instrumentoMinimo",
+    "url": "https://github.com/son0p/instrumentoMinimo",
+    "description": "Como hacer un simple generador de tono",
+    "readme": "Instrumento Electrónico Pedagógico (Minimo)\n================\n\nEn la enseñanza musical del proyecto Medellín Vive La Música se nos a encomendado la idea de desarrollar un instrumento electrónico para enseñar  algunos conceptos básicos de la música como ritmo, melodía, transientes, texturas. Éste instrumento debe estar diseñado para poderse ensamblar con otros instrumentos.\n\n\n\n"
+  },
+  {
+    "title": "ledger2html",
+    "url": "https://github.com/son0p/ledger2html",
+    "description": "Process Ledger output to produce HTML5 reports.",
+    "readme": "# Ledger2html #\n\nLedger2html is a simple Ruby script that helps you obtain beautiful HTML5 reports\nfrom [Ledger](http://ledger-cli.org/) output.\n\n## Requirements\n\n- Ledger 3.0\n- Ruby 1.8.7 (Ruby 2.0.0 or later recommended)\n\n## Synopsis ##\n\n    Usage: ledger2html <options> <ledger options>\n    Options:\n        -h, --help                       Show this help message and exit.\n        -o, --output  <path>             Save the report to a file.\n            --pre                        Use <pre> instead of <table> to wrap Ledger's output.\n            --style   <path>             Path to a CSS file (this option can be used multiple times).\n            --title   <title>            Title of the report.\n            --version                    Print ledger2html version and exit.\n            --debug                      Enable debugging.\n\n## Examples\n\nA sample register report:\n\n    ledger2html -f drewr3.dat reg groceries\n\n<table>\n<thead>\n<tr>\n<th scope=\"col\" class=\"header-\"></th>\n<th scope=\"col\" class=\"header-date\">Date</th>\n<th scope=\"col\" class=\"header-payee\">Payee</th>\n<th scope=\"col\" class=\"header-account\">Account</th>\n<th scope=\"col\" class=\"header-amount\">Amount</th>\n<th scope=\"col\" class=\"header-balance\">Balance</th>\n</tr>\n</thead>\n<tr class=\"first-posting\"><td><input name=\"status\" value=\"\" type=\"checkbox\"></td><td class=\"date\">10-Dec-20</td><td class=\"payee\">Organic Co-op</td><td class=\"account\">Expenses:Food:Groceries</td><td class=\"amount\">$ 37.50</td><td class=\"amount\">$ 37.50</td></tr><tr><td></td><td></td><td></td><td class=\"account\">Expenses:Food:Groceries</td><td class=\"amount\">$ 37.50</td><td class=\"amount\">$ 75.00</td></tr><tr><td></td><td></td><td></td><td class=\"account\">Expenses:Food:Groceries</td><td class=\"amount\">$ 37.50</td><td class=\"amount\">$ 112.50</td></tr><tr><td></td><td></td><td></td><td class=\"account\">Expenses:Food:Groceries</td><td class=\"amount\">$ 37.50</td><td class=\"amount\">$ 150.00</td></tr><tr><td></td><td></td><td></td><td class=\"account\">Expenses:Food:Groceries</td><td class=\"amount\">$ 37.50</td><td class=\"amount\">$ 187.50</td></tr><tr><td></td><td></td><td></td><td class=\"account\">Expenses:Food:Groceries</td><td class=\"amount\">$ 37.50</td><td class=\"amount\">$ 225.00</td></tr><tr class=\"first-posting pending\"><td><input name=\"status\" value=\"\" type=\"checkbox\"></td><td class=\"date\">11-Jan-02</td><td class=\"payee\">Grocery Store</td><td class=\"account\">Expenses:Food:Groceries</td><td class=\"amount\">$ 65.00</td><td class=\"amount\">$ 290.00</td></tr><tr class=\"first-posting pending\"><td><input name=\"status\" value=\"\" type=\"checkbox\"></td><td class=\"date\">11-Jan-19</td><td class=\"payee\">Grocery Store</td><td class=\"account\">Expenses:Food:Groceries</td><td class=\"amount\">$ 44.00</td><td class=\"amount\">$ 334.00</td></tr>\n</table>\n\n\nA sample cash flow report:\n\n    ledger2html -f drewr3.dat bal --dc --related checking\n\n<table>\n<thead>\n<tr>\n<th scope=\"col\" class=\"header-debit\">Debit</th>\n<th scope=\"col\" class=\"header-credit\">Credit</th>\n<th scope=\"col\" class=\"header-balance\">Balance</th>\n</tr>\n</thead>\n<tr><td class=\"amount\">$ 300.00</td><td class=\"amount\">$ 5,500.00</td><td class=\"amount partial\">$ <span class=\"neg\">-5,200.00</span></td><td class=\"account\">Assets</td></tr><tr><td class=\"amount\">0</td><td class=\"amount\">$ 1,000.00</td><td class=\"amount partial\">$ <span class=\"neg\">-1,000.00</span></td><td class=\"account\">Equity</td></tr><tr><td class=\"amount\">$ 6,634.00</td><td class=\"amount\">0</td><td class=\"amount partial\">$ 6,634.00</td><td class=\"account\">Expenses</td></tr><tr><td class=\"amount\">0</td><td class=\"amount\">$ 2,030.00</td><td class=\"amount partial\">$ <span class=\"neg\">-2,030.00</span></td><td class=\"account\">Income</td></tr><tr><td class=\"amount\">$ 200.00</td><td class=\"amount\">0</td><td class=\"amount partial\">$ 200.00</td><td class=\"account\">Liabilities</td></tr><tr><td class=\"amount total\">$ 7,134.00</td><td class=\"amount total\">$ 8,530.00</td><td class=\"amount total\">$ <span class=\"neg\">-1,396.00</span></td><td></td></tr>\n</tr>\n</table>\n\n"
+  },
+  {
+    "title": "introduccionChucK",
+    "url": "https://github.com/son0p/introduccionChucK",
+    "description": "Introducción a ChucK",
+    "readme": "ChucK\n=================\n\nHola! esta guia pretende introducir a los nuevos desarrolladores y ayudar a los experimentados en el mundo de [ChucK](http://chuck.cs.princeton.edu/)\nSu estructura esta inspirada (copiada) de:http://jstherightway.org/\n\n---\n## Escoja su camino\n\n### [Iniciar con ...](https://github.com/son0p/introduccionChucK/blob/master/README.md#iniciar-con--1)\n### [Rutinas de estudio](rutinasDeEstudio.md)\n### [Practicas](practicas.md)\n### [Ejemplos de código](https://github.com/son0p/introduccionChucK#ejemplos-de-c%C3%B3digo-1)\n### [A quienes seguir](https://github.com/son0p/introduccionChucK#a-quienes-seguir-1)\n### [Tutoriales en video](https://github.com/son0p/introduccionChucK#tutoriales-en-video-1)\n### [Fortalezas](https://github.com/son0p/introduccionChucK#fortalezas-1)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n---\n\n### Iniciar con ...\n* [¿Qué #$%^&* es ChucK?](divulgacion.md)\n* [Mi primer sonido](001primerSonido.ck)\n* [Variar Frecuencia y Ganancia](002variarFrecuenciaGanancia.ck)\n* [Generar sonidos de manera aleatoria](200aleatoriaFrecuencia.ck)\n* [Leer un array](300arrayTonos.ck)\n\n\n\n\n\n\n\n\n\n---\n\n### Ejemplos de código\n* [ChucKScripts](https://github.com/zeffii/ChucKScripts)\n* [Programas en ChucK](http://wiki.cs.princeton.edu/index.php/ChucK/Programs)\n* [ChucK en Rosetta code](http://rosettacode.org/wiki/ChucK)\n\n\n\n\n\n\n---\n\n### A quienes seguir\n* @gewang\n* @TweecKs\n* @toplaporg\n* Un listado de [gente usando ChucK](http://wiki.cs.princeton.edu/index.php/ChucK/Users)\n* Foro de usuarios no-oficial en [electro-music](http://electro-music.com/forum/forum-140.html)\n* Preguntas y respuestas sobre ChucK en [Stack Overflow](http://stackoverflow.com/questions/tagged/chuck)\n\n\n\n---\n\n### Fortalezas\n\nPermite tener mas visibilidad del \"cuando\" en comparación a Pd que se centra en visibilizar el \"Que\"\n\nPuede expresar más facilmente complejos comportamientos lógicos por ser basado en texto.\n\n\n\nTomadas de : ISMIR 2008 – Session 1d – MIR Platforms\nSUPPORT FOR MIR PROTOTYPING AND REAL-TIME APPLICATIONS IN THE CHUCK PROGRAMMING LANGUAGE\n\n• Flexibility: The programmer may specify both high-\nlevel (e.g., patching an oscillator to a filter, or\ninitiating structural musical events) and low-level,\ntime-based operations (e.g., inspecting and\ntransforming individual samples) in a single unified\nlanguage mechanism, without any need for externals.\n\n* Time: allow the programmer to program the passage of time, and to control\nand reason about time with precision and across a wide range of temporal\ngranularities\n\n* time itself is computable\n\n\n• Explicit treatment of time: There is no fixed control\nrate. It’s possible to assert control on any unit\ngenerator at any point in time, and at any rate, in a\nsub-sample-precise manner.\nConcurrency: Parallel processes (called shreds) share\na notion of time, so one can precisely synchronize and\neasily reason about parallel code modules according to\neach’s treatment of time. Parallelism is easy and\nexpressive.\n\n* Concurrency: allow the programmer to write parallel modules that share\nboth data and time, and that can be precisely synchronized; provide a deter-\nministic concurrent programming model for audio, minimizing the hassle and\ncomplexity of (preemptive) concurrent programming by taking advantage of\ntime and events in the language.\n\n• Readability: The language provides a strong\ncorrespondence between code structure, time, and\naudio building blocks; as a result, the language is\nincreasingly being used a teaching tool in computer\nmusic programs, including at Princeton, Stanford,\nGeorgia Tech, and CalArts..\n\n• Modularity: Like many other languages, ChucK\nencapsulates behaviors of synthesis building blocks\n(filters, oscillators, etc.) using the “Unit Generator”\nmodel. Its object-oriented nature also supports\nmodular user code.\n\n• A “do-it-yourself” approach: By combining the ease\nof high-level computer music environments with the\nexpressiveness of lower-level languages, ChucK\nsupports high-level musical representations, as well as\nthe prototyping and implementation of low-level,\n“white-box” signal-processing elements in the same\nlanguage.\n\n\n• On-the-fly programming: Programs can be edited as\nthey run; this functionality is supported and\nencouraged in the miniAudicle development\nenvironment1.\n\n• Rapid prototyping: allow programs to be created and edited as they run,\nfor rapid experimentation, pedagogy, and live performance.\n\n\n• Pedagogy: make audio programming more accessible; an observation is that\nmany people are willing to (learn to) program in order to make music, present-\ning an opportunity to teach programming more effectively (possibly to people\nwho would otherwise never learn to program). Conversely, the clarity and\nlogic of a programming language can help teach computer music concepts.\n\nprimary advantages of using ChucK for analysis are\nthreefold:\n• Conciseness: ChucK implicitly manages real-time\naudio and buffering, and the language is tailored for\naudio, so analysis system implementation time and\ncode length are greatly reduced.\n• Rapid turnaround experimentation: Through the\napplication of on-the-fly programming and ChucK’s\nconcise audio programming syntax, one can quickly\nprototype systems and sub-systems, changing\nparameters as well as the underlying system structure,\nand experience the results almost immediately.\n• Concurrency: Parallel management of feature\nextraction, even at multiple rates, is straightforward in\nChucK. This sample-synchronous concurrency would\nbe extremely challenging and/or inefficient in C++,\nJava, or a library built in these languages, due to their\nsupport for preemptive, thread-based concurrency, and\nthe consequent need to contend with thread-\ninstantiation, synchronization, bookkeeping, etc.\n\n\n\n\n\n\n\n\n\n---\n\n### Tutoriales en video\n\n* [ChucK: A Computer Music Programming Language 1:25:04](http://youtu.be/2rpk461T6l4)\n"
+  },
+  {
+    "title": "liveCodeEvironmentChucK",
+    "url": "https://github.com/son0p/liveCodeEvironmentChucK",
+    "description": "Algunas clases y funciones para facilitar el hacer música basada en patrones rítmicos con ChucK",
+    "readme": "liveCodeEvironmentChucK\n=======================\n\nAlgunas clases y funciones para facilitar el hacer música basada en patrones rítmicos con ChucK.\n\nUn ejemplo (debes tener [ChucK](http://chuck.cs.princeton.edu/release/) instalado)\n\n``` $ clone https://github.com/son0p/liveCodeEvironmentChucK.git ```\n\n``` $ cd liveCodeEnvironmentChucK```\n\n``` $ chuck init.ck ```\n\nEn un editor de texto puede editar y alterar valores en el archivo playground.ck\n\nEjemplo: Edita los array\n\n[\"kk\", \"sn\"] @=> string p1[]; \n\npor \n\n[\"kk\", \"sn\", \"kk\"] @=> string p1[]; \n\nPara silencio usa \"ss\"\n"
+  },
+  {
+    "title": "metodos",
+    "url": "https://github.com/son0p/metodos",
+    "description": "Herramientas para repetir muchas veces algún proceso",
+    "readme": "Métodos\n=======\n\nColección de métodos para repetir muchas veces algún proceso categorizados por las convenciones usadas en los ciclos RSPV https://en.wikipedia.org/wiki/RSVP_cycles\n\n\n**Resources** (Recursos)\nAlgo que se tiene y se va a trabajar con ello, algo cosa que pueda ser usada en el proceso, inventarios, incluyendo tiempo, materiales físicos, otras personas, ideas, limitaciones, motivaciones, metas etc.\n\n**Score** (Simbolizaciones de procesos)\nInstrucciones para el trabajo, donde se describen los procesos que llevan a la presentación o realización, En muchos casos es una síntesis gráfica, diagrama, etc.\n\n**Valuaction**(Valoracción)\nAnaliza el resultado de las acciones, con la posibilidad de seleccionar y tomar desiciones. El término \"Valuaction\" sugiere tanto los aspectos de acción y desición, va respondiendo dinámicamente al trabajo\n\n**Performance** (Presentación)\nEl resultado de los *Scores* y es lo que refleja  el *estilo* del proceso.\n"
+  },
+  {
+    "title": "lv2",
+    "url": "https://github.com/son0p/lv2",
+    "description": "attempt to do a lv2 plugin",
+    "readme": ""
+  },
+  {
+    "title": "npo-ledger-cli",
+    "url": "https://github.com/son0p/npo-ledger-cli",
+    "description": "Tutorial and examples for using Ledger CLI for NPO Accounting for a fiscal sponsor.  This repository is a backup only.  Please use https://k.sfconservancy.org/NPO-Accounting/npo-ledger-cli to collaborate on this project.  ",
+    "readme": null
+  },
+  {
+    "title": "mutant_music",
+    "url": "https://github.com/son0p/mutant_music",
+    "description": "Generative music drafts based on mutation",
+    "readme": null
+  },
+  {
+    "title": "lef",
+    "url": "https://github.com/son0p/lef",
+    "description": "ledger en emacs para finanzas",
+    "readme": "#+TITLE:      Ledger en Emacs para finanzas\n#+AUTHOR:     son0p,jero98772\n#+EMAIL:      \n#+INFOJS_OPT: view:t toc:t ltoc:t mouse:underline buttons:0 path:http://thomasf.github.io/solarized-css/org-info.min.js\n#+HTML_HEAD: <link rel=\"stylesheet\" type=\"text/css\" href=\"http://thomasf.github.io/solarized-css/solarized-dark.min.css\" />\n#+OPTIONS:    H:3 num:nil toc:t \\n:nil ::t |:t ^:t -:t f:t *:t tex:t d:(HIDE) tags:not-in-toc\n#+STARTUP:    align fold nodlcheck hidestars oddeven lognotestate\n#+SEQ_TODO:   TODO(t) INPROGRESS(i) WAITING(w@) | DONE(d) CANCELED(c@)\n#+LANGUAGE:   es\n#+PRIORITIES: A C B\n#+CATEGORY:   communication\n#+CONSTANTS: pi=3.14159265358979323846\n#+STYLE: <link rel=\"stylesheet\" type=\"text/css\" href=\"slides.css\" />\n\n** Ledger-mode\n*** Anatomía de una transacción\n    #+BEGIN_SRC ledger\n         2021/04/05 Paga factura A25  Ochoa  \n           banco:0609                                      $ 402,189\n           ingreso:comprobante:20                          $ 402,189 \n           ; compIngreso: No. 20\n           ;\n           ; EMPRESA: A38 S.A.S.   NIT: 10142101 \n           ; CIUDAD: Medellin\n           ; \n           ; ctaOrigen: \n           ; ctaDestino: 31100000696\n           ;\n           ; PAGADOR: Electrostatica Ochoa \n           ; NIT: 101301711\n           ;\n           ; EN LETRAS: Cuatroscientos dos mil ciento\n           ;            ochenta y nueve pesos m/l\n           ;\n           ;\n           ; RETEFUENTE: $103,096 (3.5%)\n           ;\n           ;\n           ingreso:arriendo:bodega:A25     $ 402,189\n           cxc:arriendo:bodega:A25         $-402,189\n           ; fact: A25\n           ; bod: 113\n\n    #+END_SRC\n**** Conceptos: fecha, beneficiarios, cuentas, monedas, cantidades\n***** Fecha\n      Ledger usa la forma AAAA-MM-DD, por convención usaremos las fechas separadas por barra AAAA/MM/DD\n      Ledger mode permite programar cronologicamente transacciones , permite programar las siguientes transacciones en fechas específicas y unidades de fecha como  dias ,semanas ,meses...\n      Para programarlo en fechas use [año,mes,dia] , Ejemplo: programar los dias 1 y 15 del mes ocurre una transaccion \n  #+BEGIN_SRC ledger\n  [*/*/1,15] Transaccion\n  #+END_SRC\n      Para programarlo en unidades de fecha se nesesita una fecha inicial con este formato AAAA/MM/DD,\n      Ejemplo: cada 2 viernes hay una transaccion desde el 2021/4/10 , se representa:\n#+BEGIN_SRC ledger\n  [2021/04/10+Fr] Transaccion\n#+END_SRC\n***** Cuentas (categorías)\n      La cuenta =ingreso:arriendo:bodega= será entendida como una cuenta =ingreso= que tiene una sub-cuenta llamada =arriendo= que a su vez tiene una sub-cuenta =bodega=.\n***** Monedas\n      Podemos usar diferentes especies:  $, EUR, COP, h, m, s. por convención usaremos el separador =coma(,)= para miles y =punto(.)= para centavos \n***** beneficiarios (payee)\n***** cantidades\n**** Metadatos y comentarios\n     Se usará el punto y coma =;= para los comentarios y metadata\n     \n     Se usará la forma =; categoria: valor= para asignar diferentes valores a una misma categoria, ejemplo: el metadato =; to: elvis= le asignara el valor =elvis= a la categoría =to:=\n\n     Para que un metadato afecte todas las categorías de la transacción se escribe en la fila que sigue del payee.\n\n#+BEGIN_SRC\n2021/05/21 Abono facturas\n  ; fact: A1\n  cxc:factura:A1      $-600,000\n  ingreso:factura:A1  $ 600,000\n  banco:09            $ 600,000\n  proveedorABC        $-600,000\n#+END_SRC\n\n   En este caso las cuatro fuentas afectadas quedarán con el metadato =; fact: A1=\n\n   #+BEGIN_SRC\n2021/05/21 Abono facturas\n  cxc:factura:A1      $-600,000\n  ingreso:factura:A1  $ 600,000\n  banco:09            $ 600,000\n  ; fact: A1\n  proveedorABC        $-600,000\n#+END_SRC\n\n   En este caso, solo la cuenta =banco:09= quedará con el metadato =; fact: A1=\n     \n**** Balance en cada transacción\n**** Verificar (reporte)\n     Para verificar que el registro cumpla los requerimientos de Ledger podemos invocar el reporte balance (bal) usando =C-c-o-r= \n*** Moverse y editar con el teclado\n#+BEGIN_SRC \n    M-p (previous) va a la transacción anterior\n    M-n (next) va a la transacción siguiente\n    M-f (forward) va a la siguiente palabra\n    M-b (back) va a la palabra anterior\n    C-f (forward) va al caracter siguiente\n    C-b (back) va al caracter anterior\n    C-a salta al inicio de la línea\n    C-e (end) salta al final de la línea\n    M-d (delete) borra la palabra a la derecha\n    C-k (kill) borra desde la posición hasta el final de la línea\n    C-/ undo\n    C-c-o-r (reporte)\n#+END_SRC    \n    \n\n** ¿Qué es [[https://www.gnu.org/software/emacs/][Emacs]]?\n*** Emacs es un editor de texto , muy completo y muy personalizable. \n** ¿Para qué ?\n*** Emacs esta hecho para optimizar tiempo al momento de escribir , al cambiar de teclado a mouse se pierde mucho tiempo , emacs es una herramienta para usar lo mínimo el mouse y manipular el editor mediente atajos de teclado.\n*** Emacs es una herramienta que sirve para todo por su adptabilidad y la facilidad de solucionar de necesidades , cosas como finanzas , programar , documentar,  escribir ... etc ...\n*** Es para introducir los datos\n** ¿Qué es [[https://www.ledger-cli.org/][Ledger]]?\n*** Un sistema de contabilidad de doble entrada , con características minimalistas, muy manipulable, maneja varias divisas y es una herramienta para operar fechas  \n** ¿Para qué?\n*** Es una herramienta para manejar datos, necesitamos una herramienta para manejarlos para que nos permita observar cosas que no son tan fáciles de ver , evitando hacer calculos repetitivos que quitan tiempo.\n*** Es buena opción en cosas como: un registro con miles de datos que para leerlos y operarlos se nesesitan años, ledger lo lee y hace los cálculos necesarios en segundos . \n\n\n** Introduccion a Ledger-Mode\n*** Para activarlo de modo manual use:\n**** M-x ledger-mode\n**** alt-x ledger-mode\n*** Los archivos de ledger acostumbran terminar en .ledger o .ldg\n** Referencias a ledger-mode\n*** Videos\n**** https://www.youtube.com/watch?v=g0TcEedJ-js , de emacsconf\n**** https://www.youtube.com/watch?v=cjoCNRpLanY\n**** https://www.youtube.com/watch?v=FJtaM43PgXQ\n**** https://www.youtube.com/watch?v=0aFeonG4wWk\n*** Enlaces de foros\n**** https://groups.google.com/g/ledger-cli/c/MZwjYEp2rjU\n"
+  },
+  {
+    "title": "musicaElectronica",
+    "url": "https://github.com/son0p/musicaElectronica",
+    "description": "(Historia, análisis, y técnicas relevantes de c/u)",
+    "readme": "# Musica Electronica:  \n## Historia, análisis, y técnicas relevantes de diferentes géneros musicales en la música electrónica.\n==============\n\n\n\n* [Drum&Bass](drumBass.md)\n* [Trance](trance.md)\n* [Dub](dub.md)\n* [Techno](Techno.md)\n* [Dubstep](dubstep.md)\n* [IDM](idm.md)\n* [Ambient](ambient.md)\n* [House](house.md)\n\n#[Practicas](practicas.md)\n"
+  },
+  {
+    "title": "miRosetta",
+    "url": "https://github.com/son0p/miRosetta",
+    "description": "personal transition to http://rosettacode.org/",
+    "readme": "# Personal transition to http://rosettacode.org/\n\n## Files\n\n### ChucK\n\n```java\nFileIO file;\nfile.open(me.dir() + \"<PATH>\", FileIO.WRITE);\n    file.write(1);\n    file.write(0);\nfile.close();\n```\n\n### Bash\n\n```python\n#!/bin/bash\n# muestra el tamaño de un archivo\ndu -h foo.wav \n# lee los encabezados\nhead foo.wav \n\n\n\n    \n```\n\n\n"
+  },
+  {
+    "title": "oime",
+    "url": "https://github.com/son0p/oime",
+    "description": "Observatorio Inteligente de la Música en Medellin",
+    "readme": null
+  },
+  {
+    "title": "openSourceFOH",
+    "url": "https://github.com/son0p/openSourceFOH",
+    "description": "Open source tools for FOH engineers",
+    "readme": null
+  },
+  {
+    "title": "oyeristas",
+    "url": "https://github.com/son0p/oyeristas",
+    "description": "aventuras en la vitrina del edificio de la Naviera en Medellin",
+    "readme": null
+  },
+  {
+    "title": "pd_fase_acustica",
+    "url": "https://github.com/son0p/pd_fase_acustica",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "publicaciones",
+    "url": "https://github.com/son0p/publicaciones",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "redessocialesparamusicos",
+    "url": "https://github.com/son0p/redessocialesparamusicos",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "pd_fase",
+    "url": "https://github.com/son0p/pd_fase",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "respiraton",
+    "url": "https://github.com/son0p/respiraton",
+    "description": "respiraton : http://www.y4pt.org/respiraton/",
+    "readme": null
+  },
+  {
+    "title": "scriptson0p",
+    "url": "https://github.com/son0p/scriptson0p",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "simulgira",
+    "url": "https://github.com/son0p/simulgira",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "sonidos_de_compania",
+    "url": "https://github.com/son0p/sonidos_de_compania",
+    "description": "Ambientes sonoros para momentos difíciles",
+    "readme": null
+  },
+  {
+    "title": "son0p-app",
+    "url": "https://github.com/son0p/son0p-app",
+    "description": "first steps on an audio app",
+    "readme": null
+  },
+  {
+    "title": "surespectro",
+    "url": "https://github.com/son0p/surespectro",
+    "description": "website dedicated to audio low frequencies ",
+    "readme": null
+  },
+  {
+    "title": "un-loquer",
+    "url": "https://github.com/son0p/un-loquer",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "tetson",
+    "url": "https://github.com/son0p/tetson",
+    "description": "app with tools for  audio system tunning",
+    "readme": null
+  },
+  {
+    "title": "visualizacion_apariciones_grupos",
+    "url": "https://github.com/son0p/visualizacion_apariciones_grupos",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "ViZaJe",
+    "url": "https://github.com/son0p/ViZaJe",
+    "description": "Visualización de la lista de correos de Un/Loquer",
+    "readme": null
+  },
+  {
+    "title": "temp",
+    "url": "https://github.com/son0p/temp",
+    "description": null,
+    "readme": null
+  },
+  {
+    "title": "Wildberger-Divine-Proportions-annotations",
+    "url": "https://github.com/son0p/Wildberger-Divine-Proportions-annotations",
+    "description": "exploraciones sobre el texto de n-j-wildberger",
+    "readme": null
+  }
+]

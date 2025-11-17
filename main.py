@@ -9,8 +9,10 @@ from tools.map_generator import generate_random_rooms ,initial_position
 import uvicorn
 
 app = FastAPI()
+
 templates = Jinja2Templates(directory="templates")
- 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 Folder= "/data"
 
 @app.get("/", response_class=HTMLResponse)
@@ -31,7 +33,6 @@ async def map_view(request: Request, username: str = Form(...)):
     generate_map = generate_random_rooms(mid, mid,repos_amount)
     x,y = initial_position(generate_map)
     print(x,y)
-    # Convert Repository objects to dictionaries for JSON serialization
     repos_data = [
         {
             "title": repo.title,
