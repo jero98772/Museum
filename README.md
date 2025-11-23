@@ -80,14 +80,6 @@ The server will automatically fetch your GitHub repositories and generate a uniq
 
 ## ⚙️ Configuration
 
-### Change GitHub Username
-
-Edit `main.py` and modify the username:
-
-```python
-# Fetch repositories
-fetcher = GitHubRepoFetcher('YOUR_GITHUB_USERNAME')
-```
 
 ## 🔧 Advanced Setup
 
@@ -113,27 +105,6 @@ gh auth login
 
 The application will automatically use the CLI if available, providing 5,000 requests/hour instead of 60.
 
-### Running in Production
-
-For production deployment, use Gunicorn:
-
-```bash
-pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:9600 main:app
-```
-
-## 🐛 Troubleshooting
-
-### Issue: No repositories showing
-
-**Solution**: Check the console for errors. Verify your GitHub username is correct and public repositories exist or install **GitHub CLI**.
-
-### Issue: Rate limit exceeded
-
-**Solution**: 
-- Wait for the rate limit to reset (check GitHub's response headers)
-- Install and authenticate with GitHub CLI
-- Use cached data (stored in `data/` folder)
 
 ## 🤝 Contributing
 
@@ -165,7 +136,7 @@ GLPv3 License - feel free to use this project for your own GitHub portfolio!
 
 This project was inspired by:
 - **Doom** - Classic raycasting game engine
-- **Hackerspace Unloquer** - in a museom when the only fixed art work is a Hackerspace 
+- **Hackerspace Unloquer** - in a "House museum" when the only fixed art work is a Hackerspace 
 - **Open/free source** - make the code Free and Open for copy,paste distribute and modificate
 
 
